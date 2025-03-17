@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import { ImageComparison, ImageComparisonImage, ImageComparisonSlider } from '../../../components/motion-primitives/image-comparison';
 
