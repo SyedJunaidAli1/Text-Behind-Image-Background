@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import Nav from '../components/Nav';
 import { removeBackground } from '@imgly/background-removal';
+import { AlignLeft, Underline, AlignCenter, AlignRight, Bold, Italic } from 'lucide-react';
 
 const MainApp = () => {
   const [opacity, setOpacity] = useState(100);
@@ -245,25 +246,22 @@ const MainApp = () => {
           <div className="flex justify-between mb-6">
             <button
               onClick={() => toggleSection('text')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${
-                activeSection === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 text-sm font-medium rounded-full ${activeSection === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                } flex items-center justify-center gap-1`}
             >
               T Text
             </button>
             <button
               onClick={() => toggleSection('image')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${
-                activeSection === 'image' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 text-sm font-medium rounded-full ${activeSection === 'image' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                } flex items-center justify-center gap-1`}
             >
               📷 Image
             </button>
             <button
               onClick={() => toggleSection('settings')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${
-                activeSection === 'settings' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 text-sm font-medium rounded-full ${activeSection === 'settings' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                } flex items-center justify-center gap-1`}
             >
               ⚙️ Settings
             </button>
@@ -282,7 +280,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Font Size</span>
                   <span>{textSize}px</span>
                 </label>
@@ -307,7 +305,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Text Opacity</span>
                   <span>{textOpacity}%</span>
                 </label>
@@ -322,7 +320,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className=" text-sm font-medium mb-2 flex justify-between">
                   <span>Text Horizontal Position</span>
                   <span>{textHorizontal}px</span>
                 </label>
@@ -337,7 +335,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Text Vertical Position</span>
                   <span>{textVertical}px</span>
                 </label>
@@ -352,7 +350,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className=" text-sm font-medium mb-2 flex justify-between">
                   <span>Text Rotation</span>
                   <span>{textRotation}°</span>
                 </label>
@@ -374,51 +372,45 @@ const MainApp = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setTextAlign('left')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
-                  <span style={{ display: 'inline-block', width: '20px', textAlign: 'left' }}>≡</span>
+                  <AlignLeft />
                 </button>
                 <button
                   onClick={() => setTextAlign('center')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
-                  <span style={{ display: 'inline-block', width: '20px', textAlign: 'center' }}>≡</span>
+                  <AlignCenter />
                 </button>
                 <button
                   onClick={() => setTextAlign('right')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
-                  <span style={{ display: 'inline-block', width: '20px', textAlign: 'right' }}>≡</span>
+                  <AlignRight />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
-                  B
+                  <Bold />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
-                  I
+                  <Italic />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
-                  U
+                  <Underline />
                 </button>
               </div>
             </div>
@@ -437,7 +429,7 @@ const MainApp = () => {
               </label>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className=" text-sm font-medium mb-2 flex justify-between">
                   <span>Rotation</span>
                   <span>{rotation}°</span>
                 </label>
@@ -456,7 +448,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className=" text-sm font-medium mb-2 flex justify-between">
                   <span>Brightness</span>
                   <span>{brightness}%</span>
                 </label>
@@ -471,7 +463,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className=" text-sm font-medium mb-2 flex justify-between">
                   <span>Contrast</span>
                   <span>{contrast}%</span>
                 </label>
@@ -490,7 +482,7 @@ const MainApp = () => {
           {activeSection === 'settings' && (
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Opacity</span>
                   <span>{opacity}%</span>
                 </label>
@@ -505,7 +497,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Horizontal</span>
                   <span>{horizontal}px</span>
                 </label>
@@ -520,7 +512,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Vertical</span>
                   <span>{vertical}px</span>
                 </label>
