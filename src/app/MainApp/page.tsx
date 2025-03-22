@@ -20,12 +20,14 @@ const MainApp = () => {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>('image');
   const [aspectRatio, setAspectRatio] = useState<'original' | '16:9' | '1:1' | '4:3'>('original');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const originalImageRef = useRef<HTMLImageElement>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -33,6 +35,7 @@ const MainApp = () => {
       console.log("📂 Selected file:", file);
       setSelectedFile(file);
       const imageUrl = URL.createObjectURL(file);
+      setOriginalImage(imageUrl);
       setIsProcessing(true);
       await setupImage(imageUrl);
       setIsProcessing(false);
@@ -70,6 +73,7 @@ const MainApp = () => {
     setIsItalic(false);
     setIsUnderline(false);
     setSelectedFile(null);
+    setOriginalImage(null);
     setProcessedImage(null);
     setAspectRatio('original');
     if (fileInputRef.current) {
@@ -92,12 +96,12 @@ const MainApp = () => {
         return { paddingTop: '75%' }; // 3/4 = 0.75
       case 'original':
       default:
-        return {}; // No paddingTop, let the image use its natural aspect ratio
+        return {};
     }
   };
 
   const handleDownload = () => {
-    if (!imageRef.current || !processedImage) {
+    if (!imageRef.current || !processedImage || !originalImageRef.current || !originalImage) {
       alert('Please upload an image first!');
       return;
     }
@@ -110,10 +114,10 @@ const MainApp = () => {
     }
 
     const img = imageRef.current;
+    const originalImg = originalImageRef.current;
     let width = img.naturalWidth;
     let height = img.naturalHeight;
 
-    // Adjust canvas dimensions based on the selected aspect ratio
     if (aspectRatio !== 'original') {
       const currentAspect = width / height;
       let targetAspect: number;
@@ -133,10 +137,8 @@ const MainApp = () => {
       }
 
       if (currentAspect > targetAspect) {
-        // Image is wider than the target aspect ratio, adjust width
         width = height * targetAspect;
       } else {
-        // Image is taller than the target aspect ratio, adjust height
         height = width / targetAspect;
       }
     }
@@ -149,8 +151,7 @@ const MainApp = () => {
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
-    ctx.drawImage(img, 0, 0, width, height);
+    ctx.drawImage(originalImg, 0, 0, width, height);
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = textOpacity / 100;
@@ -230,6 +231,15 @@ const MainApp = () => {
       });
     }
 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    ctx.drawImage(img, 0, 0, width, height);
+
     const link = document.createElement('a');
     link.download = 'edited-image.png';
     link.href = canvas.toDataURL('image/png');
@@ -240,18 +250,60 @@ const MainApp = () => {
     <>
       <Nav />
       <main className="min-h-screen p-8 w-full mx-auto flex gap-6">
-        <div className="flex-1 flex justify-center items-center border rounded-lg p-4 relative">
+        <div className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[70vh] overflow-auto">
           {isProcessing ? (
             <span className="text-gray-600 animate-pulse">Processing image...</span>
-          ) : processedImage ? (
+          ) : processedImage && originalImage ? (
             <div
-              className="relative w-full"
+              className="relative w-full max-w-full max-h-full"
               style={
                 aspectRatio !== 'original'
                   ? { ...getAspectRatioStyles(), position: 'relative' }
-                  : {}
+                  : { position: 'relative' }
               }
             >
+              {/* Layer 1: Original Image (Bottom) */}
+              <img
+                ref={originalImageRef}
+                src={originalImage}
+                alt="Original"
+                className={
+                  aspectRatio !== 'original'
+                    ? 'absolute top-0 left-0 w-full h-full object-contain'
+                    : 'absolute top-0 left-0 w-full h-auto object-contain max-w-full max-h-[60vh]'
+                }
+                style={{
+                  filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+                  transform: `rotate(${rotation}deg)`,
+                  zIndex: 1,
+                }}
+              />
+              {/* Layer 2: Text (Middle) */}
+              {text && (
+                <div
+                  className={
+                    aspectRatio !== 'original'
+                      ? 'absolute top-0 left-0 w-full h-full flex justify-center items-center'
+                      : 'absolute top-0 left-0 w-full h-full flex justify-center items-center'
+                  }
+                  style={{
+                    fontSize: `${textSize}px`,
+                    color: textColor,
+                    opacity: textOpacity / 100,
+                    transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`,
+                    whiteSpace: 'pre-wrap',
+                    pointerEvents: 'none',
+                    textAlign: textAlign,
+                    fontWeight: isBold ? 'bold' : 'normal',
+                    fontStyle: isItalic ? 'italic' : 'normal',
+                    textDecoration: isUnderline ? 'underline' : 'none',
+                    zIndex: 2,
+                  }}
+                >
+                  {text}
+                </div>
+              )}
+              {/* Layer 3: Background-Removed Image (Top) */}
               <img
                 ref={imageRef}
                 src={processedImage}
@@ -259,32 +311,14 @@ const MainApp = () => {
                 className={
                   aspectRatio !== 'original'
                     ? 'absolute top-0 left-0 w-full h-full object-contain'
-                    : 'max-w-full max-h-96 object-contain'
+                    : 'absolute top-0 left-0 w-full h-auto object-contain max-w-full max-h-[60vh]'
                 }
                 style={{
                   filter: `brightness(${brightness}%) contrast(${contrast}%)`,
                   transform: `rotate(${rotation}deg)`,
+                  zIndex: 3,
                 }}
               />
-              {text && (
-                <div
-                  className="absolute top-1/2 left-0 w-full"
-                  style={{
-                    fontSize: `${textSize}px`,
-                    color: textColor,
-                    opacity: textOpacity / 100,
-                    transform: `translateY(-50%) translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`,
-                    whiteSpace: 'pre-wrap',
-                    pointerEvents: 'none',
-                    textAlign: textAlign,
-                    fontWeight: isBold ? 'bold' : 'normal',
-                    fontStyle: isItalic ? 'italic' : 'normal',
-                    textDecoration: isUnderline ? 'underline' : 'none',
-                  }}
-                >
-                  {text}
-                </div>
-              )}
             </div>
           ) : (
             <span className="text-gray-500">No image selected</span>
@@ -378,8 +412,8 @@ const MainApp = () => {
                 </label>
                 <input
                   type="range"
-                  min="-200"
-                  max="200"
+                  min="-100"
+                  max="100"
                   value={textHorizontal}
                   onChange={(e) => setTextHorizontal(Number(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
@@ -393,8 +427,8 @@ const MainApp = () => {
                 </label>
                 <input
                   type="range"
-                  min="-200"
-                  max="200"
+                  min="-100"
+                  max="100"
                   value={textVertical}
                   onChange={(e) => setTextVertical(Number(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
@@ -420,7 +454,6 @@ const MainApp = () => {
                 </div>
               </div>
 
-              {/* Alignment Buttons */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setTextAlign('left')}
