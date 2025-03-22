@@ -2,6 +2,11 @@
 
 # Features
 - [] add font selections for text
+- [] add footer for the application
+
+# Changes
+- [] change the stlye for button on the right tab
+- [X] change the hight of right tab
 
 # known issue
 - [] fix then original aspect ratio sizine issue
@@ -9,5 +14,4 @@
 
 
 # Bugs 
-No Bugs Spotted yet
-
+- [] fix text alignment buttons

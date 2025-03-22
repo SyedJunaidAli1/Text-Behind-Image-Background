@@ -325,7 +325,7 @@ const MainApp = () => {
           )}
         </div>
 
-        <div className="w-80 border rounded-lg p-6 shadow-sm">
+        <div className="w-80 border rounded-lg p-6 shadow-sm max-h-[70vh] overflow-auto">
           <div className="flex justify-between mb-6">
             <button
               onClick={() => toggleSection('text')}
