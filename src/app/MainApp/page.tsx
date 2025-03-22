@@ -5,12 +5,9 @@ import { removeBackground } from '@imgly/background-removal';
 import { AlignLeft, Underline, AlignCenter, AlignRight, Bold, Italic } from 'lucide-react';
 
 const MainApp = () => {
-  const [opacity, setOpacity] = useState(100);
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
   const [rotation, setRotation] = useState(0);
-  const [horizontal, setHorizontal] = useState(0);
-  const [vertical, setVertical] = useState(0);
   const [text, setText] = useState('');
   const [textSize, setTextSize] = useState(16);
   const [textColor, setTextColor] = useState('#000000');
@@ -26,6 +23,7 @@ const MainApp = () => {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>('image');
+  const [aspectRatio, setAspectRatio] = useState<'original' | '16:9' | '1:1' | '4:3'>('original');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
@@ -57,12 +55,9 @@ const MainApp = () => {
   };
 
   const handleReset = () => {
-    setOpacity(100);
     setBrightness(100);
     setContrast(100);
     setRotation(0);
-    setHorizontal(0);
-    setVertical(0);
     setText('');
     setTextSize(16);
     setTextColor('#000000');
@@ -76,6 +71,7 @@ const MainApp = () => {
     setIsUnderline(false);
     setSelectedFile(null);
     setProcessedImage(null);
+    setAspectRatio('original');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -84,6 +80,20 @@ const MainApp = () => {
 
   const toggleSection = (section: string) => {
     setActiveSection(activeSection === section ? null : section);
+  };
+
+  const getAspectRatioStyles = () => {
+    switch (aspectRatio) {
+      case '16:9':
+        return { paddingTop: '56.25%' }; // 9/16 = 0.5625
+      case '1:1':
+        return { paddingTop: '100%' }; // 1/1 = 1
+      case '4:3':
+        return { paddingTop: '75%' }; // 3/4 = 0.75
+      case 'original':
+      default:
+        return {}; // No paddingTop, let the image use its natural aspect ratio
+    }
   };
 
   const handleDownload = () => {
@@ -100,18 +110,47 @@ const MainApp = () => {
     }
 
     const img = imageRef.current;
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    let width = img.naturalWidth;
+    let height = img.naturalHeight;
+
+    // Adjust canvas dimensions based on the selected aspect ratio
+    if (aspectRatio !== 'original') {
+      const currentAspect = width / height;
+      let targetAspect: number;
+
+      switch (aspectRatio) {
+        case '16:9':
+          targetAspect = 16 / 9;
+          break;
+        case '1:1':
+          targetAspect = 1;
+          break;
+        case '4:3':
+          targetAspect = 4 / 3;
+          break;
+        default:
+          targetAspect = currentAspect;
+      }
+
+      if (currentAspect > targetAspect) {
+        // Image is wider than the target aspect ratio, adjust width
+        width = height * targetAspect;
+      } else {
+        // Image is taller than the target aspect ratio, adjust height
+        height = width / targetAspect;
+      }
+    }
+
+    canvas.width = width;
+    canvas.height = height;
 
     ctx.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
-    ctx.globalAlpha = opacity / 100;
 
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
-    ctx.translate(horizontal, vertical);
 
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, width, height);
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = textOpacity / 100;
@@ -205,16 +244,26 @@ const MainApp = () => {
           {isProcessing ? (
             <span className="text-gray-600 animate-pulse">Processing image...</span>
           ) : processedImage ? (
-            <div className="relative">
+            <div
+              className="relative w-full"
+              style={
+                aspectRatio !== 'original'
+                  ? { ...getAspectRatioStyles(), position: 'relative' }
+                  : {}
+              }
+            >
               <img
                 ref={imageRef}
                 src={processedImage}
                 alt="Processed"
-                className="max-w-full max-h-96 object-contain"
+                className={
+                  aspectRatio !== 'original'
+                    ? 'absolute top-0 left-0 w-full h-full object-contain'
+                    : 'max-w-full max-h-96 object-contain'
+                }
                 style={{
-                  opacity: opacity / 100,
                   filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-                  transform: `rotate(${rotation}deg) translate(${horizontal}px, ${vertical}px)`,
+                  transform: `rotate(${rotation}deg)`,
                 }}
               />
               {text && (
@@ -246,22 +295,25 @@ const MainApp = () => {
           <div className="flex justify-between mb-6">
             <button
               onClick={() => toggleSection('text')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${activeSection === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 text-sm font-medium rounded-full ${
+                activeSection === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              } flex items-center justify-center gap-1`}
             >
               T Text
             </button>
             <button
               onClick={() => toggleSection('image')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${activeSection === 'image' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 text-sm font-medium rounded-full ${
+                activeSection === 'image' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              } flex items-center justify-center gap-1`}
             >
               📷 Image
             </button>
             <button
               onClick={() => toggleSection('settings')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${activeSection === 'settings' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 text-sm font-medium rounded-full ${
+                activeSection === 'settings' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              } flex items-center justify-center gap-1`}
             >
               ⚙️ Settings
             </button>
@@ -320,7 +372,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className=" text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Text Horizontal Position</span>
                   <span>{textHorizontal}px</span>
                 </label>
@@ -350,7 +402,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className=" text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Text Rotation</span>
                   <span>{textRotation}°</span>
                 </label>
@@ -372,43 +424,49 @@ const MainApp = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setTextAlign('left')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
+                    textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
                   <AlignLeft />
                 </button>
                 <button
                   onClick={() => setTextAlign('center')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
+                    textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
                   <AlignCenter />
                 </button>
                 <button
                   onClick={() => setTextAlign('right')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
+                    textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
                   <AlignRight />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
+                    isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
                   <Bold />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
+                    isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
                   <Italic />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
+                    isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
                   <Underline />
                 </button>
@@ -429,7 +487,7 @@ const MainApp = () => {
               </label>
 
               <div>
-                <label className=" text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Rotation</span>
                   <span>{rotation}°</span>
                 </label>
@@ -448,7 +506,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className=" text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Brightness</span>
                   <span>{brightness}%</span>
                 </label>
@@ -463,7 +521,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className=" text-sm font-medium mb-2 flex justify-between">
+                <label className="text-sm font-medium mb-2 flex justify-between">
                   <span>Contrast</span>
                   <span>{contrast}%</span>
                 </label>
@@ -482,48 +540,17 @@ const MainApp = () => {
           {activeSection === 'settings' && (
             <div className="space-y-6">
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
-                  <span>Opacity</span>
-                  <span>{opacity}%</span>
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={opacity}
-                  onChange={(e) => setOpacity(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
-                  <span>Horizontal</span>
-                  <span>{horizontal}px</span>
-                </label>
-                <input
-                  type="range"
-                  min="-100"
-                  max="100"
-                  value={horizontal}
-                  onChange={(e) => setHorizontal(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
-                  <span>Vertical</span>
-                  <span>{vertical}px</span>
-                </label>
-                <input
-                  type="range"
-                  min="-100"
-                  max="100"
-                  value={vertical}
-                  onChange={(e) => setVertical(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                />
+                <label className="block text-sm font-medium mb-2">Aspect Ratio</label>
+                <select
+                  value={aspectRatio}
+                  onChange={(e) => setAspectRatio(e.target.value as 'original' | '16:9' | '1:1' | '4:3')}
+                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="original">Original</option>
+                  <option value="16:9">16:9</option>
+                  <option value="1:1">1:1 (Square)</option>
+                  <option value="4:3">4:3</option>
+                </select>
               </div>
             </div>
           )}
