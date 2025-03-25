@@ -36,8 +36,9 @@ const MainApp = () => {
   // Update the preview dimensions and panel height
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout | null = null;
+    let loadTimeout: NodeJS.Timeout | null = null;
     let retryCount = 0;
-    const maxRetries = 10; // Retry up to 10 times (1 second total)
+    const maxRetries = 10;
 
     const updateDimensions = () => {
       if (originalImageRef.current && previewPanelRef.current) {
@@ -46,7 +47,6 @@ const MainApp = () => {
         const naturalWidth = img.naturalWidth;
         const naturalHeight = img.naturalHeight;
 
-        // Ensure natural dimensions are valid
         if (naturalWidth === 0 || naturalHeight === 0) {
           if (retryCount < maxRetries) {
             console.warn(`Image dimensions not available (retry ${retryCount + 1}/${maxRetries}): ${naturalWidth}x${naturalHeight}`);
@@ -55,7 +55,7 @@ const MainApp = () => {
             return;
           } else {
             console.error('Max retries reached, using fallback dimensions');
-            setPreviewDimensions({ width: 100, height: 100 }); // Fallback dimensions
+            setPreviewDimensions({ width: 100, height: 100 });
             setImageLoaded(true);
             return;
           }
@@ -64,9 +64,8 @@ const MainApp = () => {
         let width = naturalWidth;
         let height = naturalHeight;
 
-        // Calculate the maximum height based on 70vh
-        const maxHeightPx = window.innerHeight * 0.7; // 70vh in pixels
-        const panelWidth = panel.clientWidth - 32; // Subtract padding (p-4 = 16px on each side)
+        const maxHeightPx = window.innerHeight * 0.8; // 80vh
+        const panelWidth = panel.clientWidth - 32;
 
         if (aspectRatio !== 'original') {
           const currentAspect = width / height;
@@ -123,27 +122,45 @@ const MainApp = () => {
       }
     };
 
-    if (originalImageRef.current) {
+    if (originalImage && originalImageRef.current) {
+      console.log('Original image set, attempting to update dimensions...');
       if (originalImageRef.current.complete) {
         console.log('Image already loaded, updating dimensions...');
         updateDimensions();
       } else {
-        console.log('Image not yet loaded, waiting for load event...');
-        originalImageRef.current.addEventListener('load', updateDimensions);
+        console.log('Image not yet loaded, adding load event listener...');
+        const loadHandler = () => {
+          console.log('Image load event fired, updating dimensions...');
+          updateDimensions();
+        };
+        originalImageRef.current.addEventListener('load', loadHandler);
+
+        // Fallback: Force update dimensions after 2 seconds if load event doesn't fire
+        loadTimeout = setTimeout(() => {
+          console.warn('Image load event did not fire within 2 seconds, forcing dimension update...');
+          updateDimensions();
+        }, 2000);
+
+        // Clean up the load event listener
+        return () => {
+          if (originalImageRef.current) {
+            originalImageRef.current.removeEventListener('load', loadHandler);
+          }
+        };
       }
     } else {
-      console.warn('No image ref available to update dimensions.');
+      console.warn('No original image or image ref available to update dimensions.');
     }
 
     window.addEventListener('resize', updateDimensions);
 
     return () => {
       window.removeEventListener('resize', updateDimensions);
-      if (originalImageRef.current) {
-        originalImageRef.current.removeEventListener('load', updateDimensions);
-      }
       if (retryTimeout) {
         clearTimeout(retryTimeout);
+      }
+      if (loadTimeout) {
+        clearTimeout(loadTimeout);
       }
     };
   }, [originalImage, aspectRatio, rotation]);
@@ -154,6 +171,7 @@ const MainApp = () => {
       console.log("📂 Selected file:", file);
       setSelectedFile(file);
       setImageLoaded(false);
+      setPreviewDimensions(null); // Reset dimensions to ensure recalculation
       const imageUrl = URL.createObjectURL(file);
       setOriginalImage(imageUrl);
       setIsProcessing(true);
@@ -167,7 +185,7 @@ const MainApp = () => {
       const imageBlob = await removeBackground(imageUrl);
       if (!imageBlob) {
         console.error("❌ ERROR: removeBackground returned undefined, falling back to original image!");
-        setProcessedImage(imageUrl); // Fallback to original image
+        setProcessedImage(imageUrl);
         return;
       }
       const url = URL.createObjectURL(imageBlob);
@@ -175,7 +193,7 @@ const MainApp = () => {
       setProcessedImage(url);
     } catch (error) {
       console.error("❌ Error removing background, falling back to original image:", error);
-      setProcessedImage(imageUrl); // Fallback to original image
+      setProcessedImage(imageUrl);
     }
   };
 
@@ -389,7 +407,7 @@ const MainApp = () => {
             <span className="text-gray-600 animate-pulse">Processing image...</span>
           ) : originalImage ? (
             <div
-              key={`${aspectRatio}-${rotation}-${imageLoaded}`}
+              key={`${aspectRatio}-${rotation}`}
               className="relative w-full"
               style={
                 previewDimensions
@@ -408,7 +426,11 @@ const MainApp = () => {
                         maxHeight: `${previewDimensions.height}px`,
                         position: 'relative',
                       }
-                  : { position: 'relative', width: '100%' }
+                  : {
+                      width: '100%',
+                      position: 'relative',
+                      aspectRatio: '1 / 1',
+                    }
               }
             >
               {/* Layer 1: Original Image (Bottom) */}
