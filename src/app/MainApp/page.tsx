@@ -26,28 +26,124 @@ const MainApp = () => {
   const [activeSection, setActiveSection] = useState<string | null>('image');
   const [aspectRatio, setAspectRatio] = useState<'original' | '16:9' | '1:1' | '4:3'>('original');
   const [originalImageWidth, setOriginalImageWidth] = useState<number | null>(null);
+  const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const originalImageRef = useRef<HTMLImageElement>(null);
+  const previewPanelRef = useRef<HTMLDivElement>(null);
 
+  // Update the preview dimensions and panel height
   useEffect(() => {
-    const updateImageWidth = () => {
-      if (originalImageRef.current) {
-        const rect = originalImageRef.current.getBoundingClientRect();
+    let retryTimeout: NodeJS.Timeout | null = null;
+    let retryCount = 0;
+    const maxRetries = 10; // Retry up to 10 times (1 second total)
+
+    const updateDimensions = () => {
+      if (originalImageRef.current && previewPanelRef.current) {
+        const img = originalImageRef.current;
+        const panel = previewPanelRef.current;
+        const naturalWidth = img.naturalWidth;
+        const naturalHeight = img.naturalHeight;
+
+        // Ensure natural dimensions are valid
+        if (naturalWidth === 0 || naturalHeight === 0) {
+          if (retryCount < maxRetries) {
+            console.warn(`Image dimensions not available (retry ${retryCount + 1}/${maxRetries}): ${naturalWidth}x${naturalHeight}`);
+            retryCount++;
+            retryTimeout = setTimeout(updateDimensions, 100);
+            return;
+          } else {
+            console.error('Max retries reached, using fallback dimensions');
+            setPreviewDimensions({ width: 100, height: 100 }); // Fallback dimensions
+            setImageLoaded(true);
+            return;
+          }
+        }
+
+        let width = naturalWidth;
+        let height = naturalHeight;
+
+        // Calculate the maximum height based on 70vh
+        const maxHeightPx = window.innerHeight * 0.7; // 70vh in pixels
+        const panelWidth = panel.clientWidth - 32; // Subtract padding (p-4 = 16px on each side)
+
+        if (aspectRatio !== 'original') {
+          const currentAspect = width / height;
+          let targetAspect: number;
+
+          switch (aspectRatio) {
+            case '16:9':
+              targetAspect = 16 / 9;
+              break;
+            case '1:1':
+              targetAspect = 1;
+              break;
+            case '4:3':
+              targetAspect = 4 / 3;
+              break;
+            default:
+              targetAspect = currentAspect;
+          }
+
+          if (currentAspect > targetAspect) {
+            width = height * targetAspect;
+          } else {
+            height = width / targetAspect;
+          }
+
+          console.log(`Aspect Ratio: ${aspectRatio}, Target Aspect: ${targetAspect}, Calculated Dimensions: ${width}x${height}`);
+
+          const panelHeight = panelWidth * (height / width);
+          panel.style.height = `${Math.min(panelHeight, maxHeightPx)}px`;
+        } else {
+          console.log(`Aspect Ratio: ${aspectRatio}, Using natural dimensions: ${width}x${height}`);
+
+          const aspect = width / height;
+          if (height > maxHeightPx) {
+            height = maxHeightPx;
+            width = height * aspect;
+          }
+          if (width > panelWidth) {
+            width = panelWidth;
+            height = width / aspect;
+          }
+
+          panel.style.height = `${height}px`;
+        }
+
+        setPreviewDimensions({ width, height });
+        setImageLoaded(true);
+
+        const rect = img.getBoundingClientRect();
         setOriginalImageWidth(rect.width);
+        console.log(`Rendered Image Width: ${rect.width}, Container Dimensions: ${rect.width}x${rect.height}`);
+      } else {
+        console.warn('Image ref or panel ref not available:', originalImageRef.current, previewPanelRef.current);
       }
     };
 
-    updateImageWidth();
-    window.addEventListener('resize', updateImageWidth);
     if (originalImageRef.current) {
-      originalImageRef.current.addEventListener('load', updateImageWidth);
+      if (originalImageRef.current.complete) {
+        console.log('Image already loaded, updating dimensions...');
+        updateDimensions();
+      } else {
+        console.log('Image not yet loaded, waiting for load event...');
+        originalImageRef.current.addEventListener('load', updateDimensions);
+      }
+    } else {
+      console.warn('No image ref available to update dimensions.');
     }
 
+    window.addEventListener('resize', updateDimensions);
+
     return () => {
-      window.removeEventListener('resize', updateImageWidth);
+      window.removeEventListener('resize', updateDimensions);
       if (originalImageRef.current) {
-        originalImageRef.current.removeEventListener('load', updateImageWidth);
+        originalImageRef.current.removeEventListener('load', updateDimensions);
+      }
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
       }
     };
   }, [originalImage, aspectRatio, rotation]);
@@ -57,6 +153,7 @@ const MainApp = () => {
     if (file) {
       console.log("📂 Selected file:", file);
       setSelectedFile(file);
+      setImageLoaded(false);
       const imageUrl = URL.createObjectURL(file);
       setOriginalImage(imageUrl);
       setIsProcessing(true);
@@ -69,14 +166,16 @@ const MainApp = () => {
     try {
       const imageBlob = await removeBackground(imageUrl);
       if (!imageBlob) {
-        console.error("❌ ERROR: removeBackground returned undefined!");
+        console.error("❌ ERROR: removeBackground returned undefined, falling back to original image!");
+        setProcessedImage(imageUrl); // Fallback to original image
         return;
       }
       const url = URL.createObjectURL(imageBlob);
       console.log("🔗 Processed Image URL:", url);
       setProcessedImage(url);
     } catch (error) {
-      console.error("❌ Error removing background:", error);
+      console.error("❌ Error removing background, falling back to original image:", error);
+      setProcessedImage(imageUrl); // Fallback to original image
     }
   };
 
@@ -100,28 +199,19 @@ const MainApp = () => {
     setProcessedImage(null);
     setAspectRatio('original');
     setOriginalImageWidth(null);
+    setPreviewDimensions(null);
+    setImageLoaded(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
     setActiveSection(null);
+    if (previewPanelRef.current) {
+      previewPanelRef.current.style.height = 'auto';
+    }
   };
 
   const toggleSection = (section: string) => {
     setActiveSection(activeSection === section ? null : section);
-  };
-
-  const getAspectRatioStyles = () => {
-    switch (aspectRatio) {
-      case '16:9':
-        return { paddingTop: '56.25%' };
-      case '1:1':
-        return { paddingTop: '100%' };
-      case '4:3':
-        return { paddingTop: '75%' };
-      case 'original':
-      default:
-        return {};
-    }
   };
 
   const getJustifyContent = () => {
@@ -138,7 +228,7 @@ const MainApp = () => {
   };
 
   const handleDownload = () => {
-    if (!imageRef.current || !processedImage || !originalImageRef.current || !originalImage) {
+    if (!imageRef.current || !originalImageRef.current || !originalImage) {
       alert('Please upload an image first!');
       return;
     }
@@ -275,7 +365,11 @@ const MainApp = () => {
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.translate(-canvas.width / 2, -canvas.height / 2);
-    ctx.drawImage(img, 0, 0, width, height);
+    if (processedImage) {
+      ctx.drawImage(img, 0, 0, width, height);
+    } else {
+      ctx.drawImage(originalImg, 0, 0, width, height);
+    }
 
     const link = document.createElement('a');
     link.download = 'edited-image.png';
@@ -287,40 +381,62 @@ const MainApp = () => {
     <>
       <Nav />
       <main className="min-h-screen p-8 w-full mx-auto flex gap-6">
-        <div className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[70vh] overflow-auto">
+        <div
+          ref={previewPanelRef}
+          className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[80vh] overflow-auto"
+        >
           {isProcessing ? (
             <span className="text-gray-600 animate-pulse">Processing image...</span>
-          ) : processedImage && originalImage ? (
+          ) : originalImage ? (
             <div
-              className="relative w-full max-w-full max-h-full"
+              key={`${aspectRatio}-${rotation}-${imageLoaded}`}
+              className="relative w-full"
               style={
-                aspectRatio !== 'original'
-                  ? { ...getAspectRatioStyles(), position: 'relative' }
-                  : { position: 'relative' }
+                previewDimensions
+                  ? aspectRatio === 'original'
+                    ? {
+                        width: '100%',
+                        aspectRatio: `${previewDimensions.width} / ${previewDimensions.height}`,
+                        maxWidth: `${previewDimensions.width}px`,
+                        maxHeight: `${previewDimensions.height}px`,
+                        position: 'relative',
+                      }
+                    : {
+                        aspectRatio: `${previewDimensions.width} / ${previewDimensions.height}`,
+                        width: '100%',
+                        maxWidth: `${previewDimensions.width}px`,
+                        maxHeight: `${previewDimensions.height}px`,
+                        position: 'relative',
+                      }
+                  : { position: 'relative', width: '100%' }
               }
             >
-              <img
-                ref={originalImageRef}
-                src={originalImage}
-                alt="Original"
-                className={
-                  aspectRatio !== 'original'
-                    ? 'absolute top-0 left-0 w-full h-full object-contain'
-                    : 'absolute top-0 left-0 w-full h-auto object-contain max-w-full max-h-[60vh]'
-                }
+              {/* Layer 1: Original Image (Bottom) */}
+              <div
+                className="absolute top-0 left-0 w-full h-full overflow-hidden"
                 style={{
-                  filter: `brightness(${brightness}%) contrast(${contrast}%)`,
                   transform: `rotate(${rotation}deg)`,
-                  zIndex: 1,
                 }}
-              />
+              >
+                <img
+                  ref={originalImageRef}
+                  src={originalImage}
+                  alt="Original"
+                  className={
+                    aspectRatio === 'original'
+                      ? 'w-full h-full object-contain'
+                      : 'w-full h-full object-cover'
+                  }
+                  style={{
+                    filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+                    zIndex: 1,
+                  }}
+                />
+              </div>
+              {/* Layer 2: Text (Middle) */}
               {text && (
                 <div
-                  className={
-                    aspectRatio !== 'original'
-                      ? 'absolute top-0 left-0 h-full flex items-center'
-                      : 'absolute top-0 left-0 h-full flex items-center'
-                  }
+                  className="absolute top-0 left-0 h-full flex items-center"
                   style={{
                     width: originalImageWidth ? `${originalImageWidth}px` : '100%',
                     left: originalImageWidth ? `calc(50% - ${originalImageWidth / 2}px)` : '0',
@@ -340,28 +456,37 @@ const MainApp = () => {
                   {text}
                 </div>
               )}
-              <img
-                ref={imageRef}
-                src={processedImage}
-                alt="Processed"
-                className={
-                  aspectRatio !== 'original'
-                    ? 'absolute top-0 left-0 w-full h-full object-contain'
-                    : 'absolute top-0 left-0 w-full h-auto object-contain max-w-full max-h-[60vh]'
-                }
-                style={{
-                  filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-                  transform: `rotate(${rotation}deg)`,
-                  zIndex: 3,
-                }}
-              />
+              {/* Layer 3: Background-Removed Image (Top) */}
+              {processedImage && (
+                <div
+                  className="absolute top-0 left-0 w-full h-full overflow-hidden"
+                  style={{
+                    transform: `rotate(${rotation}deg)`,
+                  }}
+                >
+                  <img
+                    ref={imageRef}
+                    src={processedImage}
+                    alt="Processed"
+                    className={
+                      aspectRatio === 'original'
+                        ? 'w-full h-full object-contain'
+                        : 'w-full h-full object-cover'
+                    }
+                    style={{
+                      filter: `brightness(${brightness}%) contrast(${contrast}%)`,
+                      zIndex: 3,
+                    }}
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <span className="text-gray-500">No image selected</span>
           )}
         </div>
 
-        <div className="w-80 border rounded-lg p-6 shadow-sm max-h-[70vh] overflow-auto">
+        <div className="w-80 border rounded-lg p-6 shadow-sm max-h-[80vh] overflow-auto">
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => toggleSection('text')}
