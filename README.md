@@ -3,9 +3,10 @@
 # Features
 - [] add font selections for text
 - [] add footer for the application
+- [] optimize the MainApp for the mobile view
 
 # Changes
-- [] change the stlye for button on the right tab
+- [x] change the stlye for button on the right tab
 - [X] change the hight of right tab
 
 # known issue
@@ -14,4 +15,4 @@
 
 
 # Bugs 
-- [] fix text alignment buttons
+- [x] fix text alignment buttons

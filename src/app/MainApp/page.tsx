@@ -1,8 +1,8 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Nav from '../components/Nav';
 import { removeBackground } from '@imgly/background-removal';
-import { AlignLeft, Underline, AlignCenter, AlignRight, Bold, Italic } from 'lucide-react';
+import { AlignLeft, Underline, AlignCenter, AlignRight, Bold, Italic, Type, Camera, Settings } from 'lucide-react';
 
 const MainApp = () => {
   const [brightness, setBrightness] = useState(100);
@@ -25,9 +25,32 @@ const MainApp = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>('image');
   const [aspectRatio, setAspectRatio] = useState<'original' | '16:9' | '1:1' | '4:3'>('original');
+  const [originalImageWidth, setOriginalImageWidth] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const originalImageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const updateImageWidth = () => {
+      if (originalImageRef.current) {
+        const rect = originalImageRef.current.getBoundingClientRect();
+        setOriginalImageWidth(rect.width);
+      }
+    };
+
+    updateImageWidth();
+    window.addEventListener('resize', updateImageWidth);
+    if (originalImageRef.current) {
+      originalImageRef.current.addEventListener('load', updateImageWidth);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateImageWidth);
+      if (originalImageRef.current) {
+        originalImageRef.current.removeEventListener('load', updateImageWidth);
+      }
+    };
+  }, [originalImage, aspectRatio, rotation]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -76,6 +99,7 @@ const MainApp = () => {
     setOriginalImage(null);
     setProcessedImage(null);
     setAspectRatio('original');
+    setOriginalImageWidth(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -89,14 +113,27 @@ const MainApp = () => {
   const getAspectRatioStyles = () => {
     switch (aspectRatio) {
       case '16:9':
-        return { paddingTop: '56.25%' }; // 9/16 = 0.5625
+        return { paddingTop: '56.25%' };
       case '1:1':
-        return { paddingTop: '100%' }; // 1/1 = 1
+        return { paddingTop: '100%' };
       case '4:3':
-        return { paddingTop: '75%' }; // 3/4 = 0.75
+        return { paddingTop: '75%' };
       case 'original':
       default:
         return {};
+    }
+  };
+
+  const getJustifyContent = () => {
+    switch (textAlign) {
+      case 'left':
+        return 'flex-start';
+      case 'center':
+        return 'center';
+      case 'right':
+        return 'flex-end';
+      default:
+        return 'center';
     }
   };
 
@@ -262,7 +299,6 @@ const MainApp = () => {
                   : { position: 'relative' }
               }
             >
-              {/* Layer 1: Original Image (Bottom) */}
               <img
                 ref={originalImageRef}
                 src={originalImage}
@@ -278,22 +314,23 @@ const MainApp = () => {
                   zIndex: 1,
                 }}
               />
-              {/* Layer 2: Text (Middle) */}
               {text && (
                 <div
                   className={
                     aspectRatio !== 'original'
-                      ? 'absolute top-0 left-0 w-full h-full flex justify-center items-center'
-                      : 'absolute top-0 left-0 w-full h-full flex justify-center items-center'
+                      ? 'absolute top-0 left-0 h-full flex items-center'
+                      : 'absolute top-0 left-0 h-full flex items-center'
                   }
                   style={{
+                    width: originalImageWidth ? `${originalImageWidth}px` : '100%',
+                    left: originalImageWidth ? `calc(50% - ${originalImageWidth / 2}px)` : '0',
+                    justifyContent: getJustifyContent(),
                     fontSize: `${textSize}px`,
                     color: textColor,
                     opacity: textOpacity / 100,
                     transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`,
                     whiteSpace: 'pre-wrap',
                     pointerEvents: 'none',
-                    textAlign: textAlign,
                     fontWeight: isBold ? 'bold' : 'normal',
                     fontStyle: isItalic ? 'italic' : 'normal',
                     textDecoration: isUnderline ? 'underline' : 'none',
@@ -303,7 +340,6 @@ const MainApp = () => {
                   {text}
                 </div>
               )}
-              {/* Layer 3: Background-Removed Image (Top) */}
               <img
                 ref={imageRef}
                 src={processedImage}
@@ -326,30 +362,39 @@ const MainApp = () => {
         </div>
 
         <div className="w-80 border rounded-lg p-6 shadow-sm max-h-[70vh] overflow-auto">
-          <div className="flex justify-between mb-6">
+          <div className="flex gap-3 mb-6">
             <button
               onClick={() => toggleSection('text')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${
-                activeSection === 'text' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+                activeSection === 'text'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+              }`}
             >
-              T Text
+              <Type size={16} />
+              Text
             </button>
             <button
               onClick={() => toggleSection('image')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${
-                activeSection === 'image' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+                activeSection === 'image'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+              }`}
             >
-              📷 Image
+              <Camera size={16} />
+              Image
             </button>
             <button
               onClick={() => toggleSection('settings')}
-              className={`flex-1 py-2 text-sm font-medium rounded-full ${
-                activeSection === 'settings' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } flex items-center justify-center gap-1`}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+                activeSection === 'settings'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+              }`}
             >
-              ⚙️ Settings
+              <Settings size={16} />
+              Settings
             </button>
           </div>
 
