@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Nav from '../components/Nav';
 import { removeBackground } from '@imgly/background-removal';
 import { AlignLeft, Underline, AlignCenter, AlignRight, Bold, Italic, Type, Camera, Settings } from 'lucide-react';
+import Footer from '../components/Footer';
 
 const MainApp = () => {
   const [brightness, setBrightness] = useState(100);
@@ -796,6 +797,7 @@ const MainApp = () => {
           </div>
         </div>
       </main>
+      <Footer/>
     </>
   );
 };

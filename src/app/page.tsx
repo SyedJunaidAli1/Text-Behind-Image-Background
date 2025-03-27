@@ -1,6 +1,6 @@
+import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 import ImageComparisonSpring from "./components/ImageComparisonSpring";
-
 import ImageGrid from "./components/ImageGrid";
 import Nav from "./components/Nav";
 
@@ -11,6 +11,7 @@ export default function Home() {
       <Hero />
       <ImageComparisonSpring />
       <ImageGrid />
+      <Footer />
     </>
   )
 }
