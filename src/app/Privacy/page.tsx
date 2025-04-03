@@ -6,7 +6,7 @@ const Privacy = () => {
     return (
         <>
             <Nav />
-            <div className="max-w-3xl mx-auto p-6 min-h-[84vh]">
+            <div className="max-w-3xl mx-auto p-6 min-h-[85vh]">
                 <h1 className="text-3xl font-bold mb-4">Privacy Policy</h1>
                 <p>📅 Last Updated: March 27, 2025</p>
 
