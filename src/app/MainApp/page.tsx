@@ -189,6 +189,7 @@ const MainApp = () => {
         setProcessedImage(imageUrl);
         return;
       }
+      console.log("Image Blob Size:", imageBlob.size, "Type:", imageBlob.type);
       const url = URL.createObjectURL(imageBlob);
       console.log("🔗 Processed Image URL:", url);
       setProcessedImage(url);
@@ -400,46 +401,31 @@ const MainApp = () => {
     <>
       <Nav />
       <main className="min-h-screen p-8 w-full mx-auto flex gap-6">
+
         <div
           ref={previewPanelRef}
           className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[80vh] overflow-auto"
+          style={{ position: 'relative', zIndex: 0 }} // Explicit stacking context
         >
           {isProcessing ? (
             <span className="text-gray-600 animate-pulse">Processing image...</span>
           ) : originalImage ? (
             <div
-              key={`${aspectRatio}-${rotation}`}
               className="relative w-full"
-              style={
-                previewDimensions
-                  ? aspectRatio === 'original'
-                    ? {
-                        width: '100%',
-                        aspectRatio: `${previewDimensions.width} / ${previewDimensions.height}`,
-                        maxWidth: `${previewDimensions.width}px`,
-                        maxHeight: `${previewDimensions.height}px`,
-                        position: 'relative',
-                      }
-                    : {
-                        aspectRatio: `${previewDimensions.width} / ${previewDimensions.height}`,
-                        width: '100%',
-                        maxWidth: `${previewDimensions.width}px`,
-                        maxHeight: `${previewDimensions.height}px`,
-                        position: 'relative',
-                      }
-                  : {
-                      width: '100%',
-                      position: 'relative',
-                      aspectRatio: '1 / 1',
-                    }
-              }
+              style={{
+                width: '100%',
+                aspectRatio: previewDimensions
+                  ? `${previewDimensions.width} / ${previewDimensions.height}`
+                  : '1 / 1',
+                maxWidth: previewDimensions ? `${previewDimensions.width}px` : '100%',
+                maxHeight: previewDimensions ? `${previewDimensions.height}px` : '100%',
+                position: 'relative', // Ensure this container controls stacking
+              }}
             >
               {/* Layer 1: Original Image (Bottom) */}
               <div
                 className="absolute top-0 left-0 w-full h-full overflow-hidden"
-                style={{
-                  transform: `rotate(${rotation}deg)`,
-                }}
+                style={{ transform: `rotate(${rotation}deg)`, zIndex: 1 }}
               >
                 <img
                   ref={originalImageRef}
@@ -450,56 +436,56 @@ const MainApp = () => {
                       ? 'w-full h-full object-contain'
                       : 'w-full h-full object-cover'
                   }
-                  style={{
-                    filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-                    zIndex: 1,
-                  }}
+                  style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)` }}
+                  onLoad={() => console.log("Original image loaded, zIndex: 1")}
+                  onError={() => console.error("Error loading original image")}
                 />
               </div>
-              {/* Layer 2: Text (Middle) */}
+
+              {/* Layer 2: Text (Middle, Centered with Dynamic Positioning) */}
               {text && (
                 <div
                   className="absolute top-0 left-0 h-full flex items-center"
                   style={{
                     width: originalImageWidth ? `${originalImageWidth}px` : '100%',
                     left: originalImageWidth ? `calc(50% - ${originalImageWidth / 2}px)` : '0',
-                    justifyContent: getJustifyContent(),
+                    justifyContent: getJustifyContent(), // Dynamic alignment
                     fontSize: `${textSize}px`,
                     color: textColor,
                     opacity: textOpacity / 100,
-                    transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`,
+                    transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`, // Dynamic positioning and rotation
                     whiteSpace: 'pre-wrap',
                     pointerEvents: 'none',
                     fontWeight: isBold ? 'bold' : 'normal',
                     fontStyle: isItalic ? 'italic' : 'normal',
                     textDecoration: isUnderline ? 'underline' : 'none',
-                    zIndex: 2,
+                    zIndex: 2, // Middle layer
                   }}
+                  onLoad={() => console.log("Text layer loaded, zIndex: 2")}
                 >
                   {text}
                 </div>
               )}
-              {/* Layer 3: Background-Removed Image (Top) */}
+
+              {/* Layer 3: Processed Image (Top) */}
               {processedImage && (
                 <div
                   className="absolute top-0 left-0 w-full h-full overflow-hidden"
-                  style={{
-                    transform: `rotate(${rotation}deg)`,
-                  }}
+                  style={{ transform: `rotate(${rotation}deg)`, zIndex: 3 }}
                 >
                   <img
                     ref={imageRef}
                     src={processedImage}
                     alt="Processed"
+                    key={processedImage}
                     className={
                       aspectRatio === 'original'
                         ? 'w-full h-full object-contain'
                         : 'w-full h-full object-cover'
                     }
-                    style={{
-                      filter: `brightness(${brightness}%) contrast(${contrast}%)`,
-                      zIndex: 3,
-                    }}
+                    style={{ filter: `brightness(${brightness}%) contrast(${contrast}%)` }}
+                    onLoad={() => console.log("Processed image loaded, zIndex: 3")}
+                    onError={() => console.error("Error loading processed image")}
                   />
                 </div>
               )}
@@ -509,37 +495,36 @@ const MainApp = () => {
           )}
         </div>
 
+
+
         <div className="w-80 border rounded-lg p-6 shadow-sm max-h-[80vh] overflow-auto">
           <div className="flex gap-3 mb-6">
             <button
               onClick={() => toggleSection('text')}
-              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-                activeSection === 'text'
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-              }`}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${activeSection === 'text'
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                }`}
             >
               <Type size={16} />
               Text
             </button>
             <button
               onClick={() => toggleSection('image')}
-              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-                activeSection === 'image'
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-              }`}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${activeSection === 'image'
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                }`}
             >
               <Camera size={16} />
               Image
             </button>
             <button
               onClick={() => toggleSection('settings')}
-              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-                activeSection === 'settings'
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-              }`}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${activeSection === 'settings'
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                }`}
             >
               <Settings size={16} />
               Settings
@@ -650,49 +635,43 @@ const MainApp = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => setTextAlign('left')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <AlignLeft />
                 </button>
                 <button
                   onClick={() => setTextAlign('center')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <AlignCenter />
                 </button>
                 <button
                   onClick={() => setTextAlign('right')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <AlignRight />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <Bold />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <Italic />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${
-                    isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <Underline />
                 </button>
@@ -797,7 +776,7 @@ const MainApp = () => {
           </div>
         </div>
       </main>
-      <Footer/>
+      <Footer />
     </>
   );
 };
