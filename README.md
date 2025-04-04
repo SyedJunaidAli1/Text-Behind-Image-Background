@@ -3,7 +3,7 @@
 # Features
 - [] add font selections for text
 - [x] add footer for the application
-- [] optimize the MainApp for the mobile view
+- [x] optimize the MainApp for the mobile view
 - [] download button fnc
 
 # Changes

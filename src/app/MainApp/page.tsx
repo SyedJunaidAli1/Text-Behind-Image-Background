@@ -65,8 +65,8 @@ const MainApp = () => {
         let width = naturalWidth;
         let height = naturalHeight;
 
-        const maxHeightPx = window.innerHeight * 0.8; // 80vh
-        const panelWidth = panel.clientWidth - 32;
+        const maxHeightPx = window.innerHeight * 0.6; // Reduced for mobile
+        const panelWidth = panel.clientWidth - 16; // Adjusted padding for mobile
 
         if (aspectRatio !== 'original') {
           const currentAspect = width / height;
@@ -136,13 +136,11 @@ const MainApp = () => {
         };
         originalImageRef.current.addEventListener('load', loadHandler);
 
-        // Fallback: Force update dimensions after 2 seconds if load event doesn't fire
         loadTimeout = setTimeout(() => {
           console.warn('Image load event did not fire within 2 seconds, forcing dimension update...');
           updateDimensions();
         }, 2000);
 
-        // Clean up the load event listener
         return () => {
           if (originalImageRef.current) {
             originalImageRef.current.removeEventListener('load', loadHandler);
@@ -172,7 +170,7 @@ const MainApp = () => {
       console.log("📂 Selected file:", file);
       setSelectedFile(file);
       setImageLoaded(false);
-      setPreviewDimensions(null); // Reset dimensions to ensure recalculation
+      setPreviewDimensions(null);
       const imageUrl = URL.createObjectURL(file);
       setOriginalImage(imageUrl);
       setIsProcessing(true);
@@ -400,12 +398,12 @@ const MainApp = () => {
   return (
     <>
       <Nav />
-      <main className="min-h-screen p-8 w-full mx-auto flex gap-6">
-
+      <main className="min-h-screen p-4 md:p-8 w-full mx-auto flex flex-col md:flex-row gap-4 md:gap-6">
+        {/* Preview Panel */}
         <div
           ref={previewPanelRef}
-          className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[80vh] overflow-auto"
-          style={{ position: 'relative', zIndex: 0 }} // Explicit stacking context
+          className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[60vh] md:max-h-[80vh] overflow-auto w-full"
+          style={{ position: 'relative', zIndex: 0 }}
         >
           {isProcessing ? (
             <span className="text-gray-600 animate-pulse">Processing image...</span>
@@ -419,7 +417,7 @@ const MainApp = () => {
                   : '1 / 1',
                 maxWidth: previewDimensions ? `${previewDimensions.width}px` : '100%',
                 maxHeight: previewDimensions ? `${previewDimensions.height}px` : '100%',
-                position: 'relative', // Ensure this container controls stacking
+                position: 'relative',
               }}
             >
               {/* Layer 1: Original Image (Bottom) */}
@@ -449,17 +447,17 @@ const MainApp = () => {
                   style={{
                     width: originalImageWidth ? `${originalImageWidth}px` : '100%',
                     left: originalImageWidth ? `calc(50% - ${originalImageWidth / 2}px)` : '0',
-                    justifyContent: getJustifyContent(), // Dynamic alignment
+                    justifyContent: getJustifyContent(),
                     fontSize: `${textSize}px`,
                     color: textColor,
                     opacity: textOpacity / 100,
-                    transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`, // Dynamic positioning and rotation
+                    transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`,
                     whiteSpace: 'pre-wrap',
                     pointerEvents: 'none',
                     fontWeight: isBold ? 'bold' : 'normal',
                     fontStyle: isItalic ? 'italic' : 'normal',
                     textDecoration: isUnderline ? 'underline' : 'none',
-                    zIndex: 2, // Middle layer
+                    zIndex: 2,
                   }}
                   onLoad={() => console.log("Text layer loaded, zIndex: 2")}
                 >
@@ -495,56 +493,58 @@ const MainApp = () => {
           )}
         </div>
 
-
-
-        <div className="w-80 border rounded-lg p-6 shadow-sm max-h-[80vh] overflow-auto">
-          <div className="flex gap-3 mb-6">
+        {/* Controls Panel */}
+        <div className="w-full md:w-80 border rounded-lg p-4 md:p-6 shadow-sm max-h-[40vh] md:max-h-[80vh] overflow-auto">
+          <div className="flex gap-2 md:gap-3 mb-4 md:mb-6">
             <button
               onClick={() => toggleSection('text')}
-              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${activeSection === 'text'
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-                }`}
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
+                activeSection === 'text'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+              }`}
             >
-              <Type size={16} />
+              <Type size={14} className="md:w-4 md:h-4" />
               Text
             </button>
             <button
               onClick={() => toggleSection('image')}
-              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${activeSection === 'image'
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-                }`}
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
+                activeSection === 'image'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+              }`}
             >
-              <Camera size={16} />
+              <Camera size={14} className="md:w-4 md:h-4" />
               Image
             </button>
             <button
               onClick={() => toggleSection('settings')}
-              className={`flex-1 py-2 px-3 text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 ${activeSection === 'settings'
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-                }`}
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
+                activeSection === 'settings'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+              }`}
             >
-              <Settings size={16} />
+              <Settings size={14} className="md:w-4 md:h-4" />
               Settings
             </button>
           </div>
 
           {activeSection === 'text' && (
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Text</label>
+                <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">Text</label>
                 <textarea
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Enter text to overlay on the image"
-                  className="w-full p-2 border rounded-md min-h-[60px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 md:p-3 border rounded-md min-h-[60px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Font Size</span>
                   <span>{textSize}px</span>
                 </label>
@@ -559,17 +559,17 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Text Color</label>
+                <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">Text Color</label>
                 <input
                   type="color"
                   value={textColor}
                   onChange={(e) => setTextColor(e.target.value)}
-                  className="w-full h-10 border rounded-md cursor-pointer"
+                  className="w-full h-8 md:h-10 border rounded-md cursor-pointer"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Text Opacity</span>
                   <span>{textOpacity}%</span>
                 </label>
@@ -584,7 +584,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Text Horizontal Position</span>
                   <span>{textHorizontal}px</span>
                 </label>
@@ -599,7 +599,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Text Vertical Position</span>
                   <span>{textVertical}px</span>
                 </label>
@@ -614,7 +614,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Text Rotation</span>
                   <span>{textRotation}°</span>
                 </label>
@@ -632,67 +632,73 @@ const MainApp = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setTextAlign('left')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
+                    textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
-                  <AlignLeft />
+                  <AlignLeft className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setTextAlign('center')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
+                    textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
-                  <AlignCenter />
+                  <AlignCenter className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setTextAlign('right')}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
+                    textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
-                  <AlignRight />
+                  <AlignRight className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
+                    isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
-                  <Bold />
+                  <Bold className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
+                    isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
-                  <Italic />
+                  <Italic className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md border ${isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                    }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
+                    isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                  }`}
                 >
-                  <Underline />
+                  <Underline className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
               </div>
             </div>
           )}
 
           {activeSection === 'image' && (
-            <div className="space-y-6">
-              <label className="block mb-4">
-                <span className="block text-sm font-medium mb-2">Choose File</span>
+            <div className="space-y-4 md:space-y-6">
+              <label className="block mb-2 md:mb-4">
+                <span className="block text-xs md:text-sm font-medium mb-1 md:mb-2">Choose File</span>
                 <input
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="block w-full text-xs md:text-sm text-gray-500 file:mr-2 md:file:mr-4 file:py-2 file:px-3 md:file:px-4 file:rounded-md file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
               </label>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Rotation</span>
                   <span>{rotation}°</span>
                 </label>
@@ -711,7 +717,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Brightness</span>
                   <span>{brightness}%</span>
                 </label>
@@ -726,7 +732,7 @@ const MainApp = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 flex justify-between">
+                <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Contrast</span>
                   <span>{contrast}%</span>
                 </label>
@@ -743,13 +749,13 @@ const MainApp = () => {
           )}
 
           {activeSection === 'settings' && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Aspect Ratio</label>
+                <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">Aspect Ratio</label>
                 <select
                   value={aspectRatio}
                   onChange={(e) => setAspectRatio(e.target.value as 'original' | '16:9' | '1:1' | '4:3')}
-                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-2 md:p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                 >
                   <option value="original">Original</option>
                   <option value="16:9">16:9</option>
@@ -760,16 +766,16 @@ const MainApp = () => {
             </div>
           )}
 
-          <div className="flex gap-4 justify-end mt-4">
+          <div className="flex gap-2 md:gap-4 justify-end mt-3 md:mt-4">
             <button
               onClick={handleReset}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              className="px-3 md:px-4 py-2 text-xs md:text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
             >
               Reset
             </button>
             <button
               onClick={handleDownload}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              className="px-3 md:px-4 py-2 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
             >
               Download
             </button>
