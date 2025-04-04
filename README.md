@@ -9,7 +9,7 @@
 # Changes
 - [x] change the stlye for button on the right tab
 - [X] change the hight of right tab
-- [] allow onlt png and jpg
+- [x] allow onlt png, jpeg and jpg
 
 # known issue
 - [x] fix then original aspect ratio sizine issue

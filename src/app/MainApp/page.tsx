@@ -65,8 +65,8 @@ const MainApp = () => {
         let width = naturalWidth;
         let height = naturalHeight;
 
-        const maxHeightPx = window.innerHeight * 0.6; // Reduced for mobile
-        const panelWidth = panel.clientWidth - 16; // Adjusted padding for mobile
+        const maxHeightPx = window.innerHeight * 0.6;
+        const panelWidth = panel.clientWidth - 16;
 
         if (aspectRatio !== 'original') {
           const currentAspect = width / height;
@@ -167,6 +167,17 @@ const MainApp = () => {
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+      const fileExtension = file.type.toLowerCase();
+      if (!allowedTypes.includes(fileExtension)) {
+        alert('Please upload a PNG, JPG, or JPEG file.');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''; // Clear the input
+        }
+        return;
+      }
+
       console.log("📂 Selected file:", file);
       setSelectedFile(file);
       setImageLoaded(false);
@@ -693,6 +704,7 @@ const MainApp = () => {
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
+                  accept="image/png,image/jpeg,image/jpg" // Restrict to PNG, JPG, JPEG
                   className="block w-full text-xs md:text-sm text-gray-500 file:mr-2 md:file:mr-4 file:py-2 file:px-3 md:file:px-4 file:rounded-md file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
               </label>
