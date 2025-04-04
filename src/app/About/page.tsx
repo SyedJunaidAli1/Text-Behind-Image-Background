@@ -11,7 +11,7 @@ const About = () => {
           <main className="flex flex-col items-start justify-center gap-8">
             <header className="flex sm:flex-row justify-between items-center w-full gap-4 sm:gap-0"></header>
             <div>
-              <h2 className="text-lg text-white font-medium">
+              <h2 className="text-lg font-medium">
                 Text Behind Image
               </h2>
               <p className="mt-2 text-[15px] font-medium leading-relaxed">
@@ -21,7 +21,7 @@ const About = () => {
               </p>
             </div>
             <div>
-              <h2 className="text-lg text-white font-medium">About</h2>
+              <h2 className="text-lg font-medium">About</h2>
               <p className="mt-2 text-[15px] font-medium leading-relaxed">
                 This Text behind Image is crafted for personal use with a
                 minimalist design, offering essential features. It loads
@@ -30,7 +30,7 @@ const About = () => {
               </p>
             </div>
             <div>
-              <h2 className="text-lg text-white font-medium">Support</h2>
+              <h2 className="text-lg font-medium">Support</h2>
               <p className="mt-2 text-[15px] font-medium leading-relaxed">
                 The product is free to use and currently in beta. While no new
                 features or bug fixes are guaranteed immediately, we plan to
@@ -47,8 +47,8 @@ const About = () => {
             </div>
             <div className="w-full h-[1px] bg-neutral-50/15"></div>
             <footer className="flex justify-between items-center w-full">
-              <p className="mt-2 text-sm font-medium text-neutral-100 italic">
-                V0.50
+              <p className="mt-2 text-sm font-medium italic">
+                v0.50
               </p>
               <a
                 href="https://github.com/SyedJunaidAli1"
