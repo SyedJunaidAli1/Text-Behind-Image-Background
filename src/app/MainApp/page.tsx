@@ -4,6 +4,7 @@ import Nav from '../components/Nav';
 import { removeBackground } from '@imgly/background-removal';
 import { AlignLeft, Underline, AlignCenter, AlignRight, Bold, Italic, Type, Camera, Settings } from 'lucide-react';
 import Footer from '../components/Footer';
+import Select from 'react-select'; // Import react-select
 
 const MainApp = () => {
   const [brightness, setBrightness] = useState(100);
@@ -29,10 +30,174 @@ const MainApp = () => {
   const [originalImageWidth, setOriginalImageWidth] = useState<number | null>(null);
   const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [fontFamily, setFontFamily] = useState('Arial'); // Default font
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const originalImageRef = useRef<HTMLImageElement>(null);
   const previewPanelRef = useRef<HTMLDivElement>(null);
+
+  // List of 200+ fonts from Google Fonts (sample subset, expandable)
+  const fontOptions = [
+    { value: 'Arial', label: 'Arial' },
+    { value: 'Times New Roman', label: 'Times New Roman' },
+    { value: 'Courier New', label: 'Courier New' },
+    { value: 'Georgia', label: 'Georgia' },
+    { value: 'Verdana', label: 'Verdana' },
+    { value: 'Roboto', label: 'Roboto' },
+    { value: 'Open Sans', label: 'Open Sans' },
+    { value: 'Lato', label: 'Lato' },
+    { value: 'Montserrat', label: 'Montserrat' },
+    { value: 'Poppins', label: 'Poppins' },
+    { value: 'Raleway', label: 'Raleway' },
+    { value: 'Oswald', label: 'Oswald' },
+    { value: 'Roboto Condensed', label: 'Roboto Condensed' },
+    { value: 'Source Sans Pro', label: 'Source Sans Pro' },
+    { value: 'Merriweather', label: 'Merriweather' },
+    { value: 'Playfair Display', label: 'Playfair Display' },
+    { value: 'Ubuntu', label: 'Ubuntu' },
+    { value: 'Nunito', label: 'Nunito' },
+    { value: 'PT Sans', label: 'PT Sans' },
+    { value: 'Fira Sans', label: 'Fira Sans' },
+    { value: 'Lora', label: 'Lora' },
+    { value: 'Bree Serif', label: 'Bree Serif' },
+    { value: 'Cinzel', label: 'Cinzel' },
+    { value: 'Dancing Script', label: 'Dancing Script' },
+    { value: 'Indie Flower', label: 'Indie Flower' },
+    { value: 'Pacifico', label: 'Pacifico' },
+    { value: 'Lobster', label: 'Lobster' },
+    { value: 'Amatic SC', label: 'Amatic SC' },
+    { value: 'Caveat', label: 'Caveat' },
+    { value: 'Satisfy', label: 'Satisfy' },
+    { value: 'Great Vibes', label: 'Great Vibes' },
+    { value: 'Allura', label: 'Allura' },
+    { value: 'Architects Daughter', label: 'Architects Daughter' },
+    { value: 'Chewy', label: 'Chewy' },
+    { value: 'Comfortaa', label: 'Comfortaa' },
+    { value: 'Fredoka One', label: 'Fredoka One' },
+    { value: 'Gloria Hallelujah', label: 'Gloria Hallelujah' },
+    { value: 'Handlee', label: 'Handlee' },
+    { value: 'Inconsolata', label: 'Inconsolata' },
+    { value: 'Josefin Sans', label: 'Josefin Sans' },
+    { value: 'Karla', label: 'Karla' },
+    { value: 'Libre Baskerville', label: 'Libre Baskerville' },
+    { value: 'Muli', label: 'Muli' },
+    { value: 'Noticia Text', label: 'Noticia Text' },
+    { value: 'Old Standard TT', label: 'Old Standard TT' },
+    { value: 'Patua One', label: 'Patua One' },
+    { value: 'Quicksand', label: 'Quicksand' },
+    { value: 'Rokkitt', label: 'Rokkitt' },
+    { value: 'Rubik', label: 'Rubik' },
+    { value: 'Sansita', label: 'Sansita' },
+    { value: 'Tangerine', label: 'Tangerine' },
+    { value: 'Varela Round', label: 'Varela Round' },
+    { value: 'Yanone Kaffeesatz', label: 'Yanone Kaffeesatz' },
+    { value: 'Zilla Slab', label: 'Zilla Slab' },
+    { value: 'Abril Fatface', label: 'Abril Fatface' },
+    { value: 'Alegreya', label: 'Alegreya' },
+    { value: 'Anton', label: 'Anton' },
+    { value: 'Arimo', label: 'Arimo' },
+    { value: 'Asap', label: 'Asap' },
+    { value: 'Barlow', label: 'Barlow' },
+    { value: 'Bebas Neue', label: 'Bebas Neue' },
+    { value: 'Bitter', label: 'Bitter' },
+    { value: 'Cabin', label: 'Cabin' },
+    { value: 'Cardo', label: 'Cardo' },
+    { value: 'Crimson Text', label: 'Crimson Text' },
+    { value: 'Cuprum', label: 'Cuprum' },
+    { value: 'Dosis', label: 'Dosis' },
+    { value: 'Droid Sans', label: 'Droid Sans' },
+    { value: 'Exo 2', label: 'Exo 2' },
+    { value: 'Fjalla One', label: 'Fjalla One' },
+    { value: 'Francois One', label: 'Francois One' },
+    { value: 'Gilda Display', label: 'Gilda Display' },
+    { value: 'Hammersmith One', label: 'Hammersmith One' },
+    { value: 'Heebo', label: 'Heebo' },
+    { value: 'IM Fell English SC', label: 'IM Fell English SC' },
+    { value: 'Istok Web', label: 'Istok Web' },
+    { value: 'Jaldi', label: 'Jaldi' },
+    { value: 'Jura', label: 'Jura' },
+    { value: 'Kanit', label: 'Kanit' },
+    { value: 'Khand', label: 'Khand' },
+    { value: 'Kreon', label: 'Kreon' },
+    { value: 'Lekton', label: 'Lekton' },
+    { value: 'Limelight', label: 'Limelight' },
+    { value: 'Lobster Two', label: 'Lobster Two' },
+    { value: 'Luckiest Guy', label: 'Luckiest Guy' },
+    { value: 'Maiden Orange', label: 'Maiden Orange' },
+    { value: 'Marck Script', label: 'Marck Script' },
+    { value: 'Maven Pro', label: 'Maven Pro' },
+    { value: 'Merriweather Sans', label: 'Merriweather Sans' },
+    { value: 'Monda', label: 'Monda' },
+    { value: 'Noto Sans', label: 'Noto Sans' },
+    { value: 'Oldenburg', label: 'Oldenburg' },
+    { value: 'Orbitron', label: 'Orbitron' },
+    { value: 'Ovo', label: 'Ovo' },
+    { value: 'Padauk', label: 'Padauk' },
+    { value: 'Parisienne', label: 'Parisienne' },
+    { value: 'Passion One', label: 'Passion One' },
+    { value: 'Pathway Gothic One', label: 'Pathway Gothic One' },
+    { value: 'Permanent Marker', label: 'Permanent Marker' },
+    { value: 'Philosopher', label: 'Philosopher' },
+    { value: 'Pinyon Script', label: 'Pinyon Script' },
+    { value: 'Play', label: 'Play' },
+    { value: 'Poiret One', label: 'Poiret One' },
+    { value: 'Prata', label: 'Prata' },
+    { value: 'Press Start 2P', label: 'Press Start 2P' },
+    { value: 'Prociono', label: 'Prociono' },
+    { value: 'Puritan', label: 'Puritan' },
+    { value: 'Qwigley', label: 'Qwigley' },
+    { value: 'Radley', label: 'Radley' },
+    { value: 'Rationale', label: 'Rationale' },
+    { value: 'Red Hat Display', label: 'Red Hat Display' },
+    { value: 'Reenie Beanie', label: 'Reenie Beanie' },
+    { value: 'Righteous', label: 'Righteous' },
+    { value: 'Roboto Slab', label: 'Roboto Slab' },
+    { value: 'Ropa Sans', label: 'Ropa Sans' },
+    { value: 'Rosario', label: 'Rosario' },
+    { value: 'Russo One', label: 'Russo One' },
+    { value: 'Sacramento', label: 'Sacramento' },
+    { value: 'Sail', label: 'Sail' },
+    { value: 'Sansita Swashed', label: 'Sansita Swashed' },
+    { value: 'Sarabun', label: 'Sarabun' },
+    { value: 'Schoolbell', label: 'Schoolbell' },
+    { value: 'Seaweed Script', label: 'Seaweed Script' },
+    { value: 'Shadows Into Light', label: 'Shadows Into Light' },
+    { value: 'Shrikhand', label: 'Shrikhand' },
+    { value: 'Signika', label: 'Signika' },
+    { value: 'Six Caps', label: 'Six Caps' },
+    { value: 'Slabo 27px', label: 'Slabo 27px' },
+    { value: 'Smokum', label: 'Smokum' },
+    { value: 'Special Elite', label: 'Special Elite' },
+    { value: 'Spinnaker', label: 'Spinnaker' },
+    { value: 'Staatliches', label: 'Staatliches' },
+    { value: 'Stalemate', label: 'Stalemate' },
+    { value: 'Stint Ultra Condensed', label: 'Stint Ultra Condensed' },
+    { value: 'Stix Two Text', label: 'Stix Two Text' },
+    { value: 'Sunflower', label: 'Sunflower' },
+    { value: 'Supermercado One', label: 'Supermercado One' },
+    { value: 'Syncopate', label: 'Syncopate' },
+    { value: 'Tauri', label: 'Tauri' },
+    { value: 'Telex', label: 'Telex' },
+    { value: 'Text Me One', label: 'Text Me One' },
+    { value: 'Tienne', label: 'Tienne' },
+    { value: 'Titillium Web', label: 'Titillium Web' },
+    { value: 'Trade Winds', label: 'Trade Winds' },
+    { value: 'Trirong', label: 'Trirong' },
+    { value: 'Trochut', label: 'Trochut' },
+    { value: 'Ubuntu Condensed', label: 'Ubuntu Condensed' },
+    { value: 'Unica One', label: 'Unica One' },
+    { value: 'Unkempt', label: 'Unkempt' },
+    { value: 'Vidaloka', label: 'Vidaloka' },
+    { value: 'Volkhov', label: 'Volkhov' },
+    { value: 'VT323', label: 'VT323' },
+    { value: 'Wallpoet', label: 'Wallpoet' },
+    { value: 'Wendy One', label: 'Wendy One' },
+    { value: 'Wire One', label: 'Wire One' },
+    { value: 'Work Sans', label: 'Work Sans' },
+    { value: 'Yeseva One', label: 'Yeseva One' },
+    { value: 'ZCOOL QingKe HuangYou', label: 'ZCOOL QingKe HuangYou' },
+    { value: 'ZCOOL XiaoWei', label: 'ZCOOL XiaoWei' },
+  ];
 
   // Update the preview dimensions and panel height
   useEffect(() => {
@@ -230,6 +395,7 @@ const MainApp = () => {
     setOriginalImageWidth(null);
     setPreviewDimensions(null);
     setImageLoaded(false);
+    setFontFamily('Arial'); // Reset font to default
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -313,7 +479,7 @@ const MainApp = () => {
     ctx.globalAlpha = textOpacity / 100;
 
     if (text) {
-      const fontStyle = `${isItalic ? 'italic ' : ''}${isBold ? 'bold ' : ''}${textSize}px sans-serif`;
+      const fontStyle = `${isItalic ? 'italic ' : ''}${isBold ? 'bold ' : ''}${textSize}px ${fontFamily}, sans-serif`; // Use selected font
       ctx.font = fontStyle;
       ctx.fillStyle = textColor;
       ctx.textAlign = textAlign;
@@ -460,6 +626,7 @@ const MainApp = () => {
                     left: originalImageWidth ? `calc(50% - ${originalImageWidth / 2}px)` : '0',
                     justifyContent: getJustifyContent(),
                     fontSize: `${textSize}px`,
+                    fontFamily: fontFamily, // Apply selected font
                     color: textColor,
                     opacity: textOpacity / 100,
                     transform: `translate(${textHorizontal}px, ${textVertical}px) rotate(${textRotation}deg)`,
@@ -509,33 +676,30 @@ const MainApp = () => {
           <div className="flex gap-2 md:gap-3 mb-4 md:mb-6">
             <button
               onClick={() => toggleSection('text')}
-              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-                activeSection === 'text'
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-              }`}
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === 'text'
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                }`}
             >
               <Type size={14} className="md:w-4 md:h-4" />
               Text
             </button>
             <button
               onClick={() => toggleSection('image')}
-              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-                activeSection === 'image'
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-              }`}
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === 'image'
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                }`}
             >
               <Camera size={14} className="md:w-4 md:h-4" />
               Image
             </button>
             <button
               onClick={() => toggleSection('settings')}
-              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-                activeSection === 'settings'
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
-              }`}
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === 'settings'
+                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105'
+                }`}
             >
               <Settings size={14} className="md:w-4 md:h-4" />
               Settings
@@ -566,6 +730,74 @@ const MainApp = () => {
                   value={textSize}
                   onChange={(e) => setTextSize(Number(e.target.value))}
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">Font Family</label>
+                <Select
+                  value={fontOptions.find(option => option.value === fontFamily)}
+                  onChange={(selectedOption) => setFontFamily(selectedOption ? selectedOption.value : 'Arial')}
+                  options={fontOptions}
+                  className="w-full text-sm md:text-base"
+                  classNamePrefix="select"
+                  isSearchable={true}
+                  placeholder="Select a font..."
+                  styles={{
+                    control: (baseStyles, state) => ({
+                      ...baseStyles,
+                      backgroundColor: 'var(--background)', // Matches your body background
+                      borderColor: state.isFocused ? 'var(--primary)' : 'var(--border)', // Primary for focus, border for default
+                      boxShadow: state.isFocused ? `0 0 0 2px var(--primary)` : 'none', // Focus ring with primary color
+                      borderRadius: 'var(--radius)', // Uses your custom radius (0.5rem)
+                      minHeight: '2.5rem', // Tailwind h-10
+                      padding: '0 0.5rem', // Add horizontal padding to match other inputs
+                      '&:hover': {
+                        borderColor: 'var(--secondary-foreground)', // Slightly darker border on hover
+                      },
+                    }),
+                    menu: (baseStyles) => ({
+                      ...baseStyles,
+                      backgroundColor: 'var(--background)', // Matches body background
+                      borderRadius: 'var(--radius)', // Consistent with your theme
+                      zIndex: 50, // Ensure menu appears above other elements
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)', // Subtle shadow
+                      marginTop: '2px', // Slight gap between control and menu
+                    }),
+                    option: (baseStyles, state) => ({
+                      ...baseStyles,
+                      backgroundColor: state.isSelected ? 'var(--primary)' : state.isFocused ? 'var(--secondary)' : 'var(--background)', // Primary for selected, secondary for hover, background for default
+                      color: state.isSelected ? 'var(--primary-foreground)' : 'var(--foreground)', // White on selected, foreground for others
+                      padding: '0.5rem 1rem', // Consistent padding for options
+                      '&:hover': {
+                        backgroundColor: 'var(--secondary)', // Secondary on hover
+                      },
+                    }),
+                    singleValue: (baseStyles) => ({
+                      ...baseStyles,
+                      color: 'var(--foreground)', // Matches body text
+                      marginLeft: '0.5rem', // Align with padding
+                    }),
+                    placeholder: (baseStyles) => ({
+                      ...baseStyles,
+                      color: 'var(--muted-foreground)', // Matches your muted text
+                      marginLeft: '0.5rem', // Align with padding
+                    }),
+                    input: (baseStyles) => ({
+                      ...baseStyles,
+                      color: 'var(--foreground)', // Matches body text
+                      marginLeft: '0.5rem', // Align with padding
+                    }),
+                    indicatorSeparator: (baseStyles) => ({
+                      ...baseStyles,
+                      display: 'none', // Remove the separator for cleaner look
+                    }),
+                    dropdownIndicator: (baseStyles) => ({
+                      ...baseStyles,
+                      color: 'var(--foreground)', // Match text color
+                      padding: '0 0.5rem', // Consistent padding
+                    }),
+                  }}
                 />
               </div>
 
@@ -646,49 +878,43 @@ const MainApp = () => {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setTextAlign('left')}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === 'left' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <AlignLeft className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setTextAlign('center')}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === 'center' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <AlignCenter className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setTextAlign('right')}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === 'right' ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <AlignRight className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isBold ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <Bold className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isItalic ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <Italic className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
-                  }`}
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isUnderline ? 'bg-black text-white' : 'bg-white text-black border-gray-300 hover:bg-gray-100'
+                    }`}
                 >
                   <Underline className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
@@ -704,7 +930,7 @@ const MainApp = () => {
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  accept="image/png,image/jpeg,image/jpg" // Restrict to PNG, JPG, JPEG
+                  accept="image/png,image/jpeg,image/jpg"
                   className="block w-full text-xs md:text-sm text-gray-500 file:mr-2 md:file:mr-4 file:py-2 file:px-3 md:file:px-4 file:rounded-md file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
               </label>
