@@ -13,7 +13,7 @@
 
 # known issue
 - [x] fix then original aspect ratio sizine issue
-- [] Font selection is not working properly only few fonts are working
+- [x] Font selection is not working properly only few fonts are working
 - [x] aspect ratio is not changing the image aspect ratio it is changing the preview are fix it
 - [x] when we upload a image resize is not working automatically we need to click on other raitos
 - [x] third layer is not working proplery
