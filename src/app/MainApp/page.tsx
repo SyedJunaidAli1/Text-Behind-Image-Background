@@ -429,7 +429,6 @@ const MainApp = () => {
     }
   };
 
-
   
   const handleDownload = () => {
     if (!imageRef.current || !originalImageRef.current || !originalImage || !previewDimensions) {
@@ -473,7 +472,7 @@ const MainApp = () => {
         };
   
         ctx.save();
-        ctx.font = `${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
+        ctx.font = `${isItalic ? "italic" : ""} ${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
         ctx.fillStyle = textSet.color;
         ctx.globalAlpha = textSet.opacity;
         // Invert textAlign to match preview's visual alignment
@@ -485,10 +484,43 @@ const MainApp = () => {
   
         ctx.translate(x, y);
         ctx.rotate((textSet.rotation * Math.PI) / 180);
-        ctx.fillText(textSet.text, 0, 0); // Text aligned relative to translated point
+  
+        // Draw text
+        ctx.fillText(textSet.text, 0, 0);
+  
+        // Draw underline after rotation if enabled
+        let underlineY = 0; // Default value
+        let xStart = 0; // Default value
+        let xEnd = 0;   // Default value
+        if (isUnderline) {
+          const textWidth = ctx.measureText(textSet.text).width;
+          underlineY = textSet.fontSize / 3 + 2; // Gap adjusted
+          // Adjust xStart/xEnd based on inverted textAlign and anchor point
+          switch (ctx.textAlign) {
+            case "right": // Preview "left" - anchor at right edge, underline leftward
+              xStart = 0;
+              xEnd = -textWidth;
+              break;
+            case "left": // Preview "right" - anchor at left edge, underline rightward
+              xStart = 0;
+              xEnd = textWidth;
+              break;
+            case "center":
+              xStart = -textWidth / 2;
+              xEnd = textWidth / 2;
+              break;
+          }
+          ctx.beginPath();
+          ctx.moveTo(xStart, underlineY);
+          ctx.lineTo(xEnd, underlineY);
+          ctx.lineWidth = textSet.fontSize / 20;
+          ctx.strokeStyle = textSet.color;
+          ctx.stroke();
+        }
+  
         ctx.restore();
   
-        console.log("Text rendered at:", { x, y, textWidth: ctx.measureText(text).width, textHorizontal, textVertical, textAlign, canvasTextAlign: ctx.textAlign });
+        console.log("Text rendered at:", { x, y, textWidth: ctx.measureText(text).width, textHorizontal, textVertical, textAlign, canvasTextAlign: ctx.textAlign, isItalic, isUnderline, underlineY, rotation: textSet.rotation, xStart, xEnd });
       }
   
       // Draw processed image on top (if exists)
@@ -513,6 +545,10 @@ const MainApp = () => {
       }
     };
   };
+
+
+
+
   return (
     <>
       <Nav />

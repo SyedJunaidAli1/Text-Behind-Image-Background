@@ -4,7 +4,7 @@
 - [x] add font selections for text
 - [x] add footer for the application
 - [x] optimize the MainApp for the mobile view
-- [] download button fnc
+- [x] download button fnc
 
 # Changes
 - [x] change the stlye for button on the right tab
@@ -17,7 +17,7 @@
 - [x] aspect ratio is not changing the image aspect ratio it is changing the preview are fix it
 - [x] when we upload a image resize is not working automatically we need to click on other raitos
 - [x] third layer is not working proplery
-- [] my text div hight and width should be same as original image and overflow should be hidden to fix it
+- [] fix the underline on the download fnc
 
 
 # Bugs 
