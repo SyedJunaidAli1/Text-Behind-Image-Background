@@ -17,7 +17,8 @@
 - [x] aspect ratio is not changing the image aspect ratio it is changing the preview are fix it
 - [x] when we upload a image resize is not working automatically we need to click on other raitos
 - [x] third layer is not working proplery
-- [] fix the underline on the download fnc
+- [x] fix the underline on the download fnc
+- [x] fix the alignment is aligning fully to direction in download
 
 
 # Bugs 
