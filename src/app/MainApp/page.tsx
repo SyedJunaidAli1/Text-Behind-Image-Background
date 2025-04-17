@@ -243,8 +243,7 @@ const MainApp = () => {
         if (naturalWidth === 0 || naturalHeight === 0) {
           if (retryCount < maxRetries) {
             console.warn(
-              `Image dimensions not available (retry ${
-                retryCount + 1
+              `Image dimensions not available (retry ${retryCount + 1
               }/${maxRetries}): ${naturalWidth}x${naturalHeight}`
             );
             retryCount++;
@@ -429,32 +428,32 @@ const MainApp = () => {
     }
   };
 
-  
+
   const handleDownload = () => {
     if (!imageRef.current || !originalImageRef.current || !originalImage || !previewDimensions) {
       alert("Please wait for the image to fully load or adjust aspect ratio!");
       return;
     }
-  
+
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-  
+
     const img = imageRef.current;
     const originalImg = originalImageRef.current;
     const width = previewDimensions.width;
     const height = previewDimensions.height;
-  
+
     canvas.width = width;
     canvas.height = height;
-  
+
     // Load and draw the original image
     const bgImg = new Image();
     bgImg.crossOrigin = "anonymous";
     bgImg.src = originalImage;
     bgImg.onload = () => {
       ctx.drawImage(bgImg, 0, 0, width, height);
-  
+
       // Render text layer
       if (text) {
         const textSet = {
@@ -470,7 +469,7 @@ const MainApp = () => {
           tiltY: 0,
           rotation: textRotation,
         };
-  
+
         ctx.save();
         ctx.font = `${isItalic ? "italic" : ""} ${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
         ctx.fillStyle = textSet.color;
@@ -478,16 +477,16 @@ const MainApp = () => {
         // Invert textAlign to match preview's visual alignment
         ctx.textAlign = textAlign === "left" ? "right" : textAlign === "right" ? "left" : "center";
         ctx.textBaseline = "middle";
-  
+
         const x = (width * (textSet.left + 50)) / 100; // Position from center
         const y = (height * (50 - textSet.top)) / 100; // Position from center
-  
+
         ctx.translate(x, y);
         ctx.rotate((textSet.rotation * Math.PI) / 180);
-  
+
         // Draw text
         ctx.fillText(textSet.text, 0, 0);
-  
+
         // Draw underline after rotation if enabled
         let underlineY = 0; // Default value
         let xStart = 0; // Default value
@@ -517,12 +516,12 @@ const MainApp = () => {
           ctx.strokeStyle = textSet.color;
           ctx.stroke();
         }
-  
+
         ctx.restore();
-  
+
         console.log("Text rendered at:", { x, y, textWidth: ctx.measureText(text).width, textHorizontal, textVertical, textAlign, canvasTextAlign: ctx.textAlign, isItalic, isUnderline, underlineY, rotation: textSet.rotation, xStart, xEnd });
       }
-  
+
       // Draw processed image on top (if exists)
       if (processedImage) {
         const removedBgImg = new Image();
@@ -535,7 +534,7 @@ const MainApp = () => {
       } else {
         triggerDownload();
       }
-  
+
       function triggerDownload() {
         const dataUrl = canvas.toDataURL("image/png");
         const link = document.createElement("a");
@@ -545,8 +544,6 @@ const MainApp = () => {
       }
     };
   };
-
-
 
 
   return (
@@ -652,33 +649,30 @@ const MainApp = () => {
           <div className="flex gap-2 md:gap-3 mb-4 md:mb-6">
             <button
               onClick={() => toggleSection("text")}
-              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-                activeSection === "text"
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === "text"
                   ? "bg-blue-500 text-white hover:bg-blue-600"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
-              }`}
+                }`}
             >
               <Type size={14} className="md:w-4 md:h-4" />
               Text
             </button>
             <button
               onClick={() => toggleSection("image")}
-              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-                activeSection === "image"
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === "image"
                   ? "bg-blue-500 text-white hover:bg-blue-600"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
-              }`}
+                }`}
             >
               <Camera size={14} className="md:w-4 md:h-4" />
               Image
             </button>
             <button
               onClick={() => toggleSection("settings")}
-              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-                activeSection === "settings"
+              className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === "settings"
                   ? "bg-blue-500 text-white hover:bg-blue-600"
                   : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
-              }`}
+                }`}
             >
               <Settings size={14} className="md:w-4 md:h-4" />
               Settings
@@ -765,8 +759,8 @@ const MainApp = () => {
                       backgroundColor: state.isSelected
                         ? "var(--primary)"
                         : state.isFocused
-                        ? "var(--secondary)"
-                        : "var(--background)",
+                          ? "var(--secondary)"
+                          : "var(--background)",
                       color: state.isSelected
                         ? "var(--primary-foreground)"
                         : "var(--foreground)",
@@ -876,61 +870,55 @@ const MainApp = () => {
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => setTextAlign("left")}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    textAlign === "left"
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === "left"
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <AlignLeft className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setTextAlign("center")}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    textAlign === "center"
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === "center"
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <AlignCenter className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setTextAlign("right")}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    textAlign === "right"
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === "right"
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <AlignRight className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    isBold
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isBold
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <Bold className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    isItalic
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isItalic
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <Italic className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${
-                    isUnderline
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isUnderline
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   <Underline className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
