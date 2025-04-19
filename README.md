@@ -20,6 +20,7 @@
 - [x] fix the underline on the download fnc
 - [x] fix the alignment is aligning fully to direction in download
 - [] Download button click issue on desktop
+- [] Image Panel Brightness and contrass not apprearing in download image
 
 
 # Bugs 
