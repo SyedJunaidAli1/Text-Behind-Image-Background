@@ -650,8 +650,8 @@ const MainApp = () => {
             <button
               onClick={() => toggleSection("text")}
               className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === "text"
-                  ? "bg-blue-500 text-white hover:bg-blue-600"
-                  : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
                 }`}
             >
               <Type size={14} className="md:w-4 md:h-4" />
@@ -660,8 +660,8 @@ const MainApp = () => {
             <button
               onClick={() => toggleSection("image")}
               className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === "image"
-                  ? "bg-blue-500 text-white hover:bg-blue-600"
-                  : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
                 }`}
             >
               <Camera size={14} className="md:w-4 md:h-4" />
@@ -670,8 +670,8 @@ const MainApp = () => {
             <button
               onClick={() => toggleSection("settings")}
               className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${activeSection === "settings"
-                  ? "bg-blue-500 text-white hover:bg-blue-600"
-                  : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
                 }`}
             >
               <Settings size={14} className="md:w-4 md:h-4" />
@@ -684,10 +684,10 @@ const MainApp = () => {
                 <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
                   Text
                 </label>
-                <textarea
+                <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="Enter text to overlay on the image"
+                  placeholder="Enter text"
                   className="w-full p-2 md:p-3 border rounded-md min-h-[60px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
                 />
               </div>
@@ -849,6 +849,7 @@ const MainApp = () => {
                   className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
               </div>
+
               <div>
                 <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
                   <span>Text Rotation</span>
@@ -867,60 +868,61 @@ const MainApp = () => {
                   <span className="text-gray-400">↻</span>
                 </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
+
+              <div className="flex gap-2 flex-wrap max-w-full">
                 <button
                   onClick={() => setTextAlign("left")}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === "left"
+                  className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${textAlign === "left"
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
                     }`}
                 >
-                  <AlignLeft className="w-5 h-5 md:w-6 md:h-6" />
+                  <AlignLeft className="w-4 h-4 md:w-4 md:h-4" />
                 </button>
                 <button
                   onClick={() => setTextAlign("center")}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === "center"
+                  className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${textAlign === "center"
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
                     }`}
                 >
-                  <AlignCenter className="w-5 h-5 md:w-6 md:h-6" />
+                  <AlignCenter className="w-4 h-4 md:w-4 md:h-4" />
                 </button>
                 <button
                   onClick={() => setTextAlign("right")}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${textAlign === "right"
+                  className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${textAlign === "right"
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
                     }`}
                 >
-                  <AlignRight className="w-5 h-5 md:w-6 md:h-6" />
+                  <AlignRight className="w-4 h-4 md:w-4 md:h-4" />
                 </button>
                 <button
                   onClick={() => setIsBold(!isBold)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isBold
+                  className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${isBold
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
                     }`}
                 >
-                  <Bold className="w-5 h-5 md:w-6 md:h-6" />
+                  <Bold className="w-4 h-4 md:w-4 md:h-4" />
                 </button>
                 <button
                   onClick={() => setIsItalic(!isItalic)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isItalic
+                  className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${isItalic
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
                     }`}
                 >
-                  <Italic className="w-5 h-5 md:w-6 md:h-6" />
+                  <Italic className="w-4 h-4 md:w-4 md:h-4" />
                 </button>
                 <button
                   onClick={() => setIsUnderline(!isUnderline)}
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-md border ${isUnderline
+                  className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${isUnderline
                       ? "bg-black text-white"
                       : "bg-white text-black border-gray-300 hover:bg-gray-100"
                     }`}
                 >
-                  <Underline className="w-5 h-5 md:w-6 md:h-6" />
+                  <Underline className="w-4 h-4 md:w-4 md:h-4" />
                 </button>
               </div>
             </div>
