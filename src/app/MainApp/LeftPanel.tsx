@@ -62,7 +62,7 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
       className="flex-1 flex justify-center items-center border rounded-lg p-4 relative max-h-[60vh] md:max-h-[80vh] overflow-auto w-full"
     >
       {isProcessing ? (
-        <span className="text-gray-600 animate-pulse">Processing image...</span>
+        <span className="text-blue-600 animate-pulse">Processing image...</span>
       ) : originalImage ? (
         <div
           className="relative w-full"

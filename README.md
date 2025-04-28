@@ -19,7 +19,7 @@
 - [x] third layer is not working proplery
 - [x] fix the underline on the download fnc
 - [x] fix the alignment is aligning fully to direction in download
-- [] Download button click issue on desktop
+- [] Download button and reset click issue not active after image upload
 - [] Image Panel Brightness and contrass not apprearing in download image
 
 

@@ -36,109 +36,141 @@ const MainApp = () => {
   // Load font dynamically (optional, as index.html preloads fonts)
   useFontLoader(fontFamily);
 
+  // Map textAlign to justifyContent
+  const getJustifyContent = () => {
+    switch (textAlign) {
+      case "left":
+        return "flex-start";
+      case "center":
+        return "center";
+      case "right":
+        return "flex-end";
+      default:
+        return "center";
+    }
+  };
+
+  // Toggle active section (text, image, settings)
+  const toggleSection = (section: string) => {
+    setActiveSection(activeSection === section ? null : section);
+  };
+
+  const originalImageRef = useRef<HTMLImageElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const previewPanelRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const updateDimensions = () => {
+    if (originalImageRef.current && previewPanelRef.current) {
+      const img = originalImageRef.current;
+      const panel = previewPanelRef.current;
+      const naturalWidth = img.naturalWidth;
+      const naturalHeight = img.naturalHeight;
+
+      console.log(`updateDimensions: naturalWidth=${naturalWidth}, naturalHeight=${naturalHeight}`);
+
+      if (naturalWidth === 0 || naturalHeight === 0) {
+        console.warn("Image dimensions not available");
+        return;
+      }
+
+      let width = naturalWidth;
+      let height = naturalHeight;
+
+      const maxHeightPx = window.innerHeight * 0.6;
+      const panelWidth = panel.clientWidth - 16;
+
+      if (aspectRatio !== "original") {
+        const currentAspect = width / height;
+        let targetAspect: number;
+
+        switch (aspectRatio) {
+          case "16:9":
+            targetAspect = 16 / 9;
+            break;
+          case "1:1":
+            targetAspect = 1;
+            break;
+          case "4:3":
+            targetAspect = 4 / 3;
+            break;
+          default:
+            targetAspect = currentAspect;
+        }
+
+        if (currentAspect > targetAspect) {
+          width = height * targetAspect;
+        } else {
+          height = width / targetAspect;
+        }
+
+        const panelHeight = panelWidth * (height / width);
+        panel.style.height = `${Math.min(panelHeight, maxHeightPx)}px`;
+      } else {
+        const aspect = width / height;
+        if (height > maxHeightPx) {
+          height = maxHeightPx;
+          width = height * aspect;
+        }
+        if (width > panelWidth) {
+          width = panelWidth;
+          height = width / aspect;
+        }
+
+        panel.style.height = `${height}px`;
+      }
+
+      setPreviewDimensions({ width, height });
+      setImageLoaded(true);
+
+      const rect = img.getBoundingClientRect();
+      setOriginalImageWidth(rect.width);
+      console.log(`Dimensions set: previewDimensions=${width}x${height}, imageLoaded=${true}, renderedWidth=${rect.width}`);
+    } else {
+      console.warn("Refs not available:", {
+        originalImageRef: !!originalImageRef.current,
+        previewPanelRef: !!previewPanelRef.current,
+      });
+    }
+  };
+
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout | null = null;
     let loadTimeout: NodeJS.Timeout | null = null;
     let retryCount = 0;
     const maxRetries = 10;
 
-    const updateDimensions = () => {
-      if (originalImageRef.current && previewPanelRef.current) {
-        const img = originalImageRef.current;
-        const panel = previewPanelRef.current;
-        const naturalWidth = img.naturalWidth;
-        const naturalHeight = img.naturalHeight;
-
-        if (naturalWidth === 0 || naturalHeight === 0) {
-          if (retryCount < maxRetries) {
-            console.warn(`Image dimensions not available (retry ${retryCount + 1}/${maxRetries}): ${naturalWidth}x${naturalHeight}`);
-            retryCount++;
-            retryTimeout = setTimeout(updateDimensions, 100);
-            return;
-          } else {
-            console.error("Max retries reached, using fallback dimensions");
-            setPreviewDimensions({ width: 100, height: 100 });
-            setImageLoaded(true);
-            return;
-          }
-        }
-
-        let width = naturalWidth;
-        let height = naturalHeight;
-
-        const maxHeightPx = window.innerHeight * 0.6;
-        const panelWidth = panel.clientWidth - 16;
-
-        if (aspectRatio !== "original") {
-          const currentAspect = width / height;
-          let targetAspect: number;
-
-          switch (aspectRatio) {
-            case "16:9":
-              targetAspect = 16 / 9;
-              break;
-            case "1:1":
-              targetAspect = 1;
-              break;
-            case "4:3":
-              targetAspect = 4 / 3;
-              break;
-            default:
-              targetAspect = currentAspect;
-          }
-
-          if (currentAspect > targetAspect) {
-            width = height * targetAspect;
-          } else {
-            height = width / targetAspect;
-          }
-
-          const panelHeight = panelWidth * (height / width);
-          panel.style.height = `${Math.min(panelHeight, maxHeightPx)}px`;
-        } else {
-          const aspect = width / height;
-          if (height > maxHeightPx) {
-            height = maxHeightPx;
-            width = height * aspect;
-          }
-          if (width > panelWidth) {
-            width = panelWidth;
-            height = width / aspect;
-          }
-
-          panel.style.height = `${height}px`;
-        }
-
-        setPreviewDimensions({ width, height });
-        setImageLoaded(true);
-
-        const rect = img.getBoundingClientRect();
-        setOriginalImageWidth(rect.width);
-        console.log(`Rendered Image Width: ${rect.width}, Container Dimensions: ${rect.width}x${rect.height}`);
-      } else {
-        console.warn("Image ref or panel ref not available:", originalImageRef.current, previewPanelRef.current);
-      }
-    };
-
-    if (originalImage && originalImageRef.current) {
+    if (originalImage && originalImageRef.current && previewPanelRef.current) {
       if (originalImageRef.current.complete) {
+        console.log("Image already loaded, running updateDimensions");
         updateDimensions();
       } else {
+        console.log("Image not yet loaded, adding load handler");
         const loadHandler = () => {
+          console.log("Image load event triggered");
           updateDimensions();
         };
         originalImageRef.current.addEventListener("load", loadHandler);
 
+        // Fallback timeout to ensure dimensions are updated
         loadTimeout = setTimeout(() => {
+          console.log("Fallback timeout triggered");
           updateDimensions();
-        }, 2000);
+        }, 3000);
 
         return () => {
           if (originalImageRef.current) {
             originalImageRef.current.removeEventListener("load", loadHandler);
+            console.log("Cleaned up load handler");
           }
         };
       }
+    } else {
+      console.log("Skipping useEffect: missing originalImage or refs", {
+        originalImage,
+        hasImageRef: !!originalImageRef.current,
+        hasPanelRef: !!previewPanelRef.current,
+      });
     }
 
     window.addEventListener("resize", updateDimensions);
@@ -147,13 +179,17 @@ const MainApp = () => {
       window.removeEventListener("resize", updateDimensions);
       if (retryTimeout) clearTimeout(retryTimeout);
       if (loadTimeout) clearTimeout(loadTimeout);
+      console.log("Cleaned up useEffect");
     };
   }, [originalImage, aspectRatio, rotation]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const originalImageRef = useRef<HTMLImageElement>(null);
-  const previewPanelRef = useRef<HTMLDivElement>(null);
+  // Trigger updateDimensions after processing completes
+  useEffect(() => {
+    if (!isProcessing && processedImage && originalImageRef.current && previewPanelRef.current) {
+      console.log("Processed image ready, triggering updateDimensions");
+      updateDimensions();
+    }
+  }, [isProcessing, processedImage]);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -173,6 +209,11 @@ const MainApp = () => {
       setIsProcessing(true);
       await setupImage(imageUrl);
       setIsProcessing(false);
+      console.log("Image uploaded:", {
+        imageUrl,
+        imageLoaded,
+        previewDimensions,
+      });
     }
   };
 
@@ -180,9 +221,11 @@ const MainApp = () => {
     try {
       const imageBlob = await removeBackground(imageUrl);
       setProcessedImage(imageBlob ? URL.createObjectURL(imageBlob) : imageUrl);
+      console.log("Image processed:", { processedImage: imageBlob ? "set" : imageUrl });
     } catch (error) {
       console.error("Error removing background:", error);
       setProcessedImage(imageUrl);
+      console.log("Image processing failed, using original:", { processedImage: imageUrl });
     }
   };
 
@@ -212,26 +255,11 @@ const MainApp = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
     setActiveSection(null);
     if (previewPanelRef.current) previewPanelRef.current.style.height = "auto";
-  };
-
-  const toggleSection = (section: string) => {
-    setActiveSection(activeSection === section ? null : section);
-  };
-
-  const getJustifyContent = () => {
-    switch (textAlign) {
-      case "left":
-        return "flex-start";
-      case "center":
-        return "center";
-      case "right":
-        return "flex-end";
-      default:
-        return "center";
-    }
+    console.log("Reset triggered");
   };
 
   const handleDownload = () => {
+    console.log("Download clicked", { imageLoaded, previewDimensions });
     if (!imageRef.current || !originalImageRef.current || !originalImage || !previewDimensions) {
       alert("Please wait for the image to fully load or adjust aspect ratio!");
       return;
@@ -350,6 +378,7 @@ const MainApp = () => {
         link.download = "edited-image.png";
         link.href = dataUrl;
         link.click();
+        console.log("Download triggered");
       }
     };
   };
