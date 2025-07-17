@@ -11,7 +11,7 @@
 - [X] change the hight of right tab
 - [x] allow onlt png, jpeg and jpg
 
-# known issue
+# known issue/Bugs 
 - [x] fix then original aspect ratio sizine issue
 - [x] Font selection is not working properly only few fonts are working
 - [x] aspect ratio is not changing the image aspect ratio it is changing the preview are fix it
@@ -19,9 +19,7 @@
 - [x] third layer is not working proplery
 - [x] fix the underline on the download fnc
 - [x] fix the alignment is aligning fully to direction in download
-- [] Download button and reset click issue not active after image upload
+- [x] Download button and reset click issue not active after image upload
+- [] still some issues with download and reset buttons are there
 - [] Image Panel Brightness and contrass not apprearing in download image
-
-
-# Bugs 
 - [x] fix text alignment buttons

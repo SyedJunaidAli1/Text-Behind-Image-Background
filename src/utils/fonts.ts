@@ -2,6 +2,7 @@ import { useEffect } from "react";
 
 // Font options derived from public/index.html <link> tags, sorted alphabetically
 export const fontOptions = [
+  { value: "Arial", label: "Arial" },
   { value: "Abril Fatface", label: "Abril Fatface" },
   { value: "Allura", label: "Allura" },
   { value: "Amatic SC", label: "Amatic SC" },
