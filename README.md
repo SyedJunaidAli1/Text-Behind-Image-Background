@@ -1,23 +1,95 @@
-## TODOS
+# Text-Behind-Image-Background
 
-# Features
-- [x] add font selections for text
-- [x] add footer for the application
-- [x] optimize the MainApp for the mobile view
-- [x] download button fnc
+Text-Behind-Image-Background is a web app that lets users add stylish text behind image backgrounds — perfect for creating eye-catching visuals, banners, thumbnails, social posts, and more.
 
-# Changes
-- [x] change the stlye for button on the right tab
-- [X] change the hight of right tab
-- [x] allow onlt png, jpeg and jpg
+👉 Built with Next.js, Tailwind CSS, shadcn/ui, and powered by the Canva API for image and text editing features.
 
-# known issue/Bugs 
-- [x] fix then original aspect ratio sizine issue
-- [x] Font selection is not working properly only few fonts are working
-- [x] aspect ratio is not changing the image aspect ratio it is changing the preview are fix it
-- [x] when we upload a image resize is not working automatically we need to click on other raitos
-- [x] third layer is not working proplery
-- [x] fix the underline on the download fnc
-- [x] fix the alignment is aligning fully to direction in download
-- [x] Download button and reset click issue not active after image upload
-- [x] fix text alignment buttons
+## 🚀 Features
+
+### 📸 Upload and display images (PNG, JPG, JPEG)
+
+### ✏️ Add custom text behind the image background
+
+### 🎨 Style the text (font, size, color, alignment)
+
+### 📐 Adjust text position and layout on the image
+
+### 📥 Download final image with text behind background
+
+### 📱 Responsive UI built with Tailwind CSS and shadcn/ui
+
+## 🛠️ Built With
+
+Next.js – React framework for frontend & server-side rendering
+
+Tailwind CSS – Utility-first styling
+
+shadcn/ui – Accessible UI components
+
+Canva API – Image manipulation and design tools support
+
+## 📦 Installation
+1. Clone the repo
+```
+git clone https://github.com/SyedJunaidAli1/Text-Behind-Image-Background.git
+cd Text-Behind-Image-Background
+```
+
+2. Install dependencies
+```
+bun install
+ or
+npm install
+```
+
+3. Start the dev server
+```
+bun run dev
+    or
+npm run dev
+```
+
+Open http://localhost:3000
+ to view in the browser.
+
+## ⚙️ Usage
+
+#### Upload an image from your device.
+
+#### Enter the text you want to place behind the image.
+
+#### Customize the text’s style (font, color, size).
+
+#### Position the text behind the image as desired.
+
+#### Click Download to save your creation.
+
+📁 Project Structure
+```
+src/
+├─ app/                 # Next.js App Router
+├─ components/          # UI components
+├─ public/              # Static files
+├─ styles/              # Tailwind & custom CSS
+├─ utils/               # Helper utilities
+├─ pages/               # Application pages
+└─ README.md
+```
+
+🚀 Live Demo
+
+Live app: https://text-behind-image-background.vercel.app
+
+❤️ Contributing
+
+Contributions are welcome!
+
+Fork the repo
+
+Create a feature branch
+
+Open a Pull Request
+
+📄 License
+
+MIT License
