@@ -13,13 +13,13 @@ const ImageComparisonSpring = () => {
         }}
       >
         <ImageComparisonImage
-          src="/Image (14).jpg"
+          src="/camparison.jpg"
           alt="Motion Primitives Dark"
           position="left"
           className="object-cover w-full h-full"
         />
         <ImageComparisonImage
-          src="/Image (15).jpg"
+          src="/camparison2.jpg"
           alt="Motion Primitives Light"
           position="right"
           className="object-cover w-full h-full"

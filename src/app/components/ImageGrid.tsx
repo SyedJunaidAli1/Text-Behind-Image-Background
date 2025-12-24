@@ -1,5 +1,3 @@
-import React from "react";
-
 const ImageGrid = () => {
   // Sample image data (replace with your own paths)
   const images = [
