@@ -20,6 +20,4 @@
 - [x] fix the underline on the download fnc
 - [x] fix the alignment is aligning fully to direction in download
 - [x] Download button and reset click issue not active after image upload
-- [] still some issues with download and reset buttons are there
-- [] Image Panel Brightness and contrass not apprearing in download image
 - [x] fix text alignment buttons
