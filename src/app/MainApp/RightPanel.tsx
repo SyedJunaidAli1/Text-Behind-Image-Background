@@ -1,5 +1,4 @@
 import React from "react";
-import Select from "react-select";
 import { RefObject } from "react";
 import {
   AlignLeft,
@@ -12,6 +11,18 @@ import {
   Camera,
   Settings,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface RightPanelProps {
   activeSection: string | null;
@@ -101,7 +112,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
   handleDownload,
 }) => {
   return (
-    <div className="w-full md:w-80 border rounded-lg p-4 md:p-6 shadow-sm max-h-[80vh] md:max-h[80vh] overflow-auto">
+    <div className="w-full md:w-80 border rounded-lg p-4 md:p-6 shadow-sm max-h-[80vh] md:max-h-[80vh] overflow-auto">
       <div className="flex gap-2 md:gap-3 mb-4 md:mb-6">
         <button
           onClick={() => toggleSection("text")}
@@ -143,11 +154,10 @@ const RightPanel: React.FC<RightPanelProps> = ({
             <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
               Text
             </label>
-            <input
+            <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Enter text"
-              className="w-full p-2 md:p-3 border rounded-md min-h-[60px] resize-y focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
             />
           </div>
           <div>
@@ -155,13 +165,11 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Font Size</span>
               <span>{textSize}px</span>
             </label>
-            <input
-              type="range"
-              min="16"
-              max="1000"
-              value={textSize}
-              onChange={(e) => setTextSize(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            <Slider
+              min={16}
+              max={1000}
+              value={[textSize]}
+              onValueChange={([val]) => setTextSize(val)}
             />
           </div>
           <div>
@@ -169,76 +177,24 @@ const RightPanel: React.FC<RightPanelProps> = ({
               Font Family
             </label>
             <Select
-              value={fontOptions.find((option) => option.value === fontFamily) || null}
-              onChange={(selectedOption) => {
-                console.log("Selected font:", selectedOption ? selectedOption.value : "Arial");
-                setFontFamily(selectedOption ? selectedOption.value : "Arial");
+              value={fontFamily}
+              onValueChange={(value) => {
+                console.log("Selected font:", value);
+                setFontFamily(value);
               }}
-              options={fontOptions}
-              className="w-full text-sm md:text-base"
-              classNamePrefix="select"
-              isSearchable={true}
-              placeholder="Select a font..."
-              styles={{
-                control: (baseStyles, state) => ({
-                  ...baseStyles,
-                  backgroundColor: "var(--background)",
-                  borderColor: state.isFocused ? "var(--primary)" : "var(--border)",
-                  boxShadow: state.isFocused ? `0 0 0 2px var(--primary)` : "none",
-                  borderRadius: "var(--radius)",
-                  minHeight: "2.5rem",
-                  padding: "0 0.5rem",
-                  "&:hover": {
-                    borderColor: "var(--secondary-foreground)",
-                  },
-                }),
-                menu: (baseStyles) => ({
-                  ...baseStyles,
-                  backgroundColor: "var(--background)",
-                  borderRadius: "var(--radius)",
-                  zIndex: 50,
-                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                  marginTop: "2px",
-                }),
-                option: (baseStyles, state) => ({
-                  ...baseStyles,
-                  backgroundColor: state.isSelected
-                    ? "var(--primary)"
-                    : state.isFocused
-                    ? "var(--secondary)"
-                    : "var(--background)",
-                  color: state.isSelected ? "var(--primary-foreground)" : "var(--foreground)",
-                  padding: "0.5rem 1rem",
-                  "&:hover": {
-                    backgroundColor: "var(--secondary)",
-                  },
-                }),
-                singleValue: (baseStyles) => ({
-                  ...baseStyles,
-                  color: "var(--foreground)",
-                  marginLeft: "0.5rem",
-                }),
-                placeholder: (baseStyles) => ({
-                  ...baseStyles,
-                  color: "var(--muted-foreground)",
-                  marginLeft: "0.5rem",
-                }),
-                input: (baseStyles) => ({
-                  ...baseStyles,
-                  color: "var(--foreground)",
-                  marginLeft: "0.5rem",
-                }),
-                indicatorSeparator: (baseStyles) => ({
-                  ...baseStyles,
-                  display: "none",
-                }),
-                dropdownIndicator: (baseStyles) => ({
-                  ...baseStyles,
-                  color: "var(--foreground)",
-                  padding: "0 0.5rem",
-                }),
-              }}
-            />
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a font..." />
+              </SelectTrigger>
+
+              <SelectContent>
+                {fontOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
@@ -256,13 +212,12 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Text Opacity</span>
               <span>{textOpacity}%</span>
             </label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={textOpacity}
-              onChange={(e) => setTextOpacity(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={[textOpacity]}
+              onValueChange={([val]) => setTextOpacity(val)}
             />
           </div>
           <div>
@@ -270,13 +225,12 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Text Horizontal Position</span>
               <span>{textHorizontal}px</span>
             </label>
-            <input
-              type="range"
-              min="-100"
-              max="100"
-              value={textHorizontal}
-              onChange={(e) => setTextHorizontal(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            <Slider
+              min={-100}
+              max={100}
+              step={1}
+              value={[textHorizontal]}
+              onValueChange={([val]) => setTextHorizontal(val)}
             />
           </div>
           <div>
@@ -284,13 +238,12 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Text Vertical Position</span>
               <span>{textVertical}px</span>
             </label>
-            <input
-              type="range"
-              min="-100"
-              max="100"
-              value={textVertical}
-              onChange={(e) => setTextVertical(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            <Slider
+              min={-100}
+              max={100}
+              step={1}
+              value={[textVertical]}
+              onValueChange={([val]) => setTextVertical(val)}
             />
           </div>
           <div>
@@ -298,80 +251,66 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Text Rotation</span>
               <span>{textRotation}°</span>
             </label>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">↺</span>
-              <input
-                type="range"
-                min="-180"
-                max="180"
-                value={textRotation}
-                onChange={(e) => setTextRotation(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-              <span className="text-gray-400">↻</span>
-            </div>
+            <Slider
+              min={-180}
+              max={180}
+              step={1}
+              value={[textRotation]}
+              onValueChange={([val]) => setTextRotation(val)}
+            />
           </div>
-          <div className="flex gap-2 flex-wrap max-w-full">
-            <button
-              onClick={() => setTextAlign("left")}
-              className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${
-                textAlign === "left"
-                  ? "bg-black text-white"
-                  : "bg-white text-black border-gray-300 hover:bg-gray-100"
-              }`}
+          <div className="flex mx-auto">
+            <ToggleGroup
+              type="single"
+              value={textAlign}
+              onValueChange={(value) => {
+                if (value) setTextAlign(value as "left" | "center" | "right");
+              }}
+              className="flex gap-2"
+              variant="outline"
+              size="sm"
             >
-              <AlignLeft className="w-4 h-4 md:w-4 md:h-4" />
-            </button>
-            <button
-              onClick={() => setTextAlign("center")}
-              className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${
-                textAlign === "center"
-                  ? "bg-black text-white"
-                  : "bg-white text-black border-gray-300 hover:bg-gray-100"
-              }`}
+              <ToggleGroupItem value="left" aria-label="Align left">
+                <AlignLeft className="h-4 w-4" />
+              </ToggleGroupItem>
+
+              <ToggleGroupItem value="center" aria-label="Align center">
+                <AlignCenter className="h-4 w-4" />
+              </ToggleGroupItem>
+
+              <ToggleGroupItem value="right" aria-label="Align right">
+                <AlignRight className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            <ToggleGroup
+              type="multiple"
+              value={[
+                isBold && "bold",
+                isItalic && "italic",
+                isUnderline && "underline",
+              ].filter(Boolean)}
+              onValueChange={(values) => {
+                setIsBold(values.includes("bold"));
+                setIsItalic(values.includes("italic"));
+                setIsUnderline(values.includes("underline"));
+              }}
+              className="flex gap-2 mt-2"
+              variant="outline"
+              size="sm"
             >
-              <AlignCenter className="w-4 h-4 md:w-4 md:h-4" />
-            </button>
-            <button
-              onClick={() => setTextAlign("right")}
-              className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${
-                textAlign === "right"
-                  ? "bg-black text-white"
-                  : "bg-white text-black border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              <AlignRight className="w-4 h-4 md:w-4 md:h-4" />
-            </button>
-            <button
-              onClick={() => setIsBold(!isBold)}
-              className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${
-                isBold
-                  ? "bg-black text-white"
-                  : "bg-white text-black border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              <Bold className="w-4 h-4 md:w-4 md:h-4" />
-            </button>
-            <button
-              onClick={() => setIsItalic(!isItalic)}
-              className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${
-                isItalic
-                  ? "bg-black text-white"
-                  : "bg-white text-black border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              <Italic className="w-4 h-4 md:w-4 md:h-4" />
-            </button>
-            <button
-              onClick={() => setIsUnderline(!isUnderline)}
-              className={`w-8 h-8 md:w-8 md:h-8 flex items-center justify-center rounded-md border ${
-                isUnderline
-                  ? "bg-black text-white"
-                  : "bg-white text-black border-gray-300 hover:bg-gray-100"
-              }`}
-            >
-              <Underline className="w-4 h-4 md:w-4 md:h-4" />
-            </button>
+              <ToggleGroupItem value="bold" aria-label="Bold (toggle)">
+                <Bold className="h-4 w-4" />
+              </ToggleGroupItem>
+
+              <ToggleGroupItem value="italic" aria-label="Italic (toggle)">
+                <Italic className="h-4 w-4" />
+              </ToggleGroupItem>
+
+              <ToggleGroupItem value="underline" aria-label="Underline (toggle)">
+                <Underline className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
         </div>
       )}
@@ -394,31 +333,25 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Rotation</span>
               <span>{rotation}°</span>
             </label>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400">↺</span>
-              <input
-                type="range"
-                min="-180"
-                max="180"
-                value={rotation}
-                onChange={(e) => setRotation(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-              <span className="text-gray-400">↻</span>
-            </div>
+            <Slider
+              min={-180}
+              max={180}
+              step={1}
+              value={[rotation]}
+              onValueChange={([val]) => setRotation(val)}
+            />
           </div>
           <div>
             <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
               <span>Brightness</span>
               <span>{brightness}%</span>
             </label>
-            <input
-              type="range"
-              min="0"
-              max="200"
-              value={brightness}
-              onChange={(e) => setBrightness(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            <Slider
+              min={0}
+              max={200}
+              step={1}
+              value={[brightness]}
+              onValueChange={([val]) => setBrightness(val)}
             />
           </div>
           <div>
@@ -426,13 +359,12 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <span>Contrast</span>
               <span>{contrast}%</span>
             </label>
-            <input
-              type="range"
-              min="0"
-              max="200"
-              value={contrast}
-              onChange={(e) => setContrast(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            <Slider
+              min={0}
+              max={200}
+              step={1}
+              value={[contrast]}
+              onValueChange={([val]) => setContrast(val)}
             />
           </div>
         </div>
@@ -443,36 +375,33 @@ const RightPanel: React.FC<RightPanelProps> = ({
             <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
               Aspect Ratio
             </label>
-            <select
-              value={aspectRatio}
-              onChange={(e) =>
-                setAspectRatio(e.target.value as "original" | "16:9" | "1:1" | "4:3")
-              }
-              className="w-full p-2 md:p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-            >
-              <option value="original">Original</option>
-              <option value="16:9">16:9</option>
-              <option value="1:1">1:1 (Square)</option>
-              <option value="4:3">4:3</option>
-            </select>
+            <Select value={aspectRatio} onValueChange={setAspectRatio}>
+              <SelectTrigger>
+                <SelectValue placeholder="Aspect ratio" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="original">Original</SelectItem>
+                <SelectItem value="16:9">16:9</SelectItem>
+                <SelectItem value="1:1">1:1</SelectItem>
+                <SelectItem value="4:3">4:3</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}
       <div className="flex gap-2 md:gap-4 justify-end mt-3 md:mt-4">
-        <button
+        <Button
           onClick={handleReset}
-          className="px-3 md:px-4 py-2 text-xs md:text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
           disabled={!imageLoaded || !previewDimensions}
         >
           Reset
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleDownload}
-          className="px-3 md:px-4 py-2 text-xs md:text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
           disabled={!imageLoaded || !previewDimensions}
         >
           Download
-        </button>
+        </Button>
       </div>
     </div>
   );
