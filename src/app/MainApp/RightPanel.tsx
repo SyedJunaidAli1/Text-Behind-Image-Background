@@ -259,7 +259,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
               onValueChange={([val]) => setTextRotation(val)}
             />
           </div>
-          <div className="flex mx-auto">
+          <div className="flex flex-col gap-2">
             <ToggleGroup
               type="single"
               value={textAlign}
@@ -307,7 +307,10 @@ const RightPanel: React.FC<RightPanelProps> = ({
                 <Italic className="h-4 w-4" />
               </ToggleGroupItem>
 
-              <ToggleGroupItem value="underline" aria-label="Underline (toggle)">
+              <ToggleGroupItem
+                value="underline"
+                aria-label="Underline (toggle)"
+              >
                 <Underline className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
