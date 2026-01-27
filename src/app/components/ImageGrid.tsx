@@ -54,6 +54,7 @@ const ImageGrid = () => {
           <img
             src={images[0].src}
             alt="Sample 1"
+            loading="lazy"
             className="w-full h-80 object-cover"
           />
         </motion.div>
@@ -70,6 +71,7 @@ const ImageGrid = () => {
           <img
             src={images[1].src}
             alt="Sample 2"
+            loading="lazy"
             className="w-full h-80 object-cover"
           />
         </motion.div>
@@ -90,6 +92,7 @@ const ImageGrid = () => {
           <img
             src={images[2].src}
             alt="Sample 3"
+            loading="lazy"
             className="w-full h-80 object-cover"
           />
         </motion.div>
@@ -106,6 +109,7 @@ const ImageGrid = () => {
           <img
             src={images[3].src}
             alt="Sample 4"
+            loading="lazy"
             className="w-full h-80 object-cover"
           />
         </motion.div>
@@ -130,6 +134,7 @@ const ImageGrid = () => {
               transition={{ duration: 0.3 }}
               src={image.src}
               alt={`Sample ${index + 5}`}
+              loading="lazy"
               className="w-full h-100 object-cover"
             />
           </motion.div>
