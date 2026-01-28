@@ -29,7 +29,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ColorPicker,
   ColorPickerAlpha,
-  ColorPickerEyeDropper,
   ColorPickerFormat,
   ColorPickerHue,
   ColorPickerOutput,
