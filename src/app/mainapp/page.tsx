@@ -18,7 +18,9 @@ const MainApp = () => {
   const [textHorizontal, setTextHorizontal] = useState(0);
   const [textVertical, setTextVertical] = useState(0);
   const [textRotation, setTextRotation] = useState(0);
-  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">("center");
+  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(
+    "center",
+  );
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
@@ -27,9 +29,17 @@ const MainApp = () => {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>("image");
-  const [aspectRatio, setAspectRatio] = useState<"original" | "16:9" | "1:1" | "4:3">("original");
-  const [originalImageWidth, setOriginalImageWidth] = useState<number | null>(null);
-  const [previewDimensions, setPreviewDimensions] = useState<{ width: number; height: number } | null>(null);
+  const [aspectRatio, setAspectRatio] = useState<
+    "original" | "16:9" | "1:1" | "4:3"
+  >("original");
+  const [originalImageWidth, setOriginalImageWidth] = useState<number | null>(
+    null,
+  );
+  const [previewDimensions, setPreviewDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
   const [imageLoaded, setImageLoaded] = useState(false);
   const [fontFamily, setFontFamily] = useState("Arial");
 
@@ -66,8 +76,11 @@ const MainApp = () => {
       const panel = previewPanelRef.current;
       const naturalWidth = img.naturalWidth;
       const naturalHeight = img.naturalHeight;
+      
+      console.log(
+        `updateDimensions: naturalWidth=${naturalWidth}, naturalHeight=${naturalHeight}`,
+      );
 
-      console.log(`updateDimensions: naturalWidth=${naturalWidth}, naturalHeight=${naturalHeight}`);
 
       if (naturalWidth === 0 || naturalHeight === 0) {
         console.warn("Image dimensions not available");
@@ -125,7 +138,9 @@ const MainApp = () => {
 
       const rect = img.getBoundingClientRect();
       setOriginalImageWidth(rect.width);
-      console.log(`Dimensions set: previewDimensions=${width}x${height}, imageLoaded=${true}, renderedWidth=${rect.width}`);
+      console.log(
+        `Dimensions set: previewDimensions=${width}x${height}, imageLoaded=${true}, renderedWidth=${rect.width}`,
+      );
     } else {
       console.warn("Refs not available:", {
         originalImageRef: !!originalImageRef.current,
@@ -185,13 +200,22 @@ const MainApp = () => {
 
   // Trigger updateDimensions after processing completes
   useEffect(() => {
-    if (!isProcessing && processedImage && originalImageRef.current && previewPanelRef.current) {
+    if (
+      !isProcessing &&
+      processedImage &&
+      originalImageRef.current &&
+      previewPanelRef.current
+    ) {
+
       console.log("Processed image ready, triggering updateDimensions");
       updateDimensions();
     }
   }, [isProcessing, processedImage]);
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+
     const file = event.target.files?.[0];
     if (file) {
       const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
@@ -221,11 +245,16 @@ const MainApp = () => {
     try {
       const imageBlob = await removeBackground(imageUrl);
       setProcessedImage(imageBlob ? URL.createObjectURL(imageBlob) : imageUrl);
-      console.log("Image processed:", { processedImage: imageBlob ? "set" : imageUrl });
+      console.log("Image processed:", {
+        processedImage: imageBlob ? "set" : imageUrl,
+      });
     } catch (error) {
       console.error("Error removing background:", error);
       setProcessedImage(imageUrl);
-      console.log("Image processing failed, using original:", { processedImage: imageUrl });
+      console.log("Image processing failed, using original:", {
+        processedImage: imageUrl,
+      });
+
     }
   };
 
@@ -260,7 +289,12 @@ const MainApp = () => {
 
   const handleDownload = () => {
     console.log("Download clicked", { imageLoaded, previewDimensions });
-    if (!imageRef.current || !originalImageRef.current || !originalImage || !previewDimensions) {
+    if (
+      !imageRef.current ||
+      !originalImageRef.current ||
+      !originalImage ||
+      !previewDimensions
+    ) {
       alert("Please wait for the image to fully load or adjust aspect ratio!");
       return;
     }
@@ -302,7 +336,13 @@ const MainApp = () => {
         ctx.font = `${isItalic ? "italic" : ""} ${textSet.fontWeight} ${textSet.fontSize}px ${textSet.fontFamily}`;
         ctx.fillStyle = textSet.color;
         ctx.globalAlpha = textSet.opacity;
-        ctx.textAlign = textAlign === "left" ? "right" : textAlign === "right" ? "left" : "center";
+        ctx.textAlign =
+          textAlign === "left"
+            ? "right"
+            : textAlign === "right"
+              ? "left"
+              : "center";
+
         ctx.textBaseline = "middle";
 
         const x = (width * (textSet.left + 50)) / 100;
@@ -464,3 +504,4 @@ const MainApp = () => {
 };
 
 export default MainApp;
+
