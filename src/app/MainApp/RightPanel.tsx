@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { RefObject } from "react";
 import {
@@ -24,6 +25,21 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ColorPicker,
+  ColorPickerAlpha,
+  ColorPickerEyeDropper,
+  ColorPickerFormat,
+  ColorPickerHue,
+  ColorPickerOutput,
+  ColorPickerSelection,
+} from "@/components/ui/color-picker";
+import Color from "color";
+
+type ColorInput =
+  | string
+  | [number, number, number]
+  | [number, number, number, number];
 
 interface RightPanelProps {
   activeSection: string | null;
@@ -112,6 +128,23 @@ const RightPanel: React.FC<RightPanelProps> = ({
   handleReset,
   handleDownload,
 }) => {
+  const handleColorChange = (color: ColorInput) => {
+    try {
+      let colorObj: Color;
+
+      if (Array.isArray(color)) {
+        const [r, g, b, a = 1] = color;
+        colorObj = Color.rgb(r, g, b).alpha(a);
+      } else {
+        colorObj = Color(color);
+      }
+
+      // normalize EVERYTHING to hex (or rgba if you prefer)
+      setTextColor(colorObj.hex());
+    } catch (error) {
+      console.error("Color conversion error:", error);
+    }
+  };
   return (
     <div className="w-full md:w-80 border rounded-lg p-4 md:p-6 shadow-sm max-h-[80vh] md:max-h-[80vh] overflow-auto">
       <Tabs
@@ -195,15 +228,28 @@ const RightPanel: React.FC<RightPanelProps> = ({
             </Select>
           </div>
           <div>
-            <label className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
-              Text Color
-            </label>
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
-              className="w-full h-8 md:h-10 border rounded-md cursor-pointer"
-            />
+            <div className="space-y-2">
+              <label className="text-xs md:text-sm font-medium">
+                Text Color
+              </label>
+
+              <ColorPicker
+                onChange={handleColorChange}
+                className="max-w-sm h-70 rounded-md border bg-background p-4 shadow-sm"
+              >
+                <ColorPickerSelection className="h-24" />
+                <div className="flex  items-center gap-4">
+                  <div className="grid w-full gap-1">
+                    <ColorPickerHue />
+                    <ColorPickerAlpha />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ColorPickerOutput />
+                  <ColorPickerFormat />
+                </div>
+              </ColorPicker>
+            </div>
           </div>
           <div>
             <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
@@ -401,18 +447,8 @@ const RightPanel: React.FC<RightPanelProps> = ({
         </div>
       )}
       <div className="flex gap-2 md:gap-4 justify-end mt-3 md:mt-4">
-        <Button
-          onClick={handleReset}
-          disabled={!imageLoaded || !previewDimensions}
-        >
-          Reset
-        </Button>
-        <Button
-          onClick={handleDownload}
-          disabled={!imageLoaded || !previewDimensions}
-        >
-          Download
-        </Button>
+        <Button onClick={handleReset}>Reset</Button>
+        <Button onClick={handleDownload}>Download</Button>
       </div>
     </div>
   );
