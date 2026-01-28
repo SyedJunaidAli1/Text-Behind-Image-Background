@@ -1,5 +1,4 @@
 import React from "react";
-import Select from "react-select";
 import { RefObject } from "react";
 import {
   AlignLeft,
