@@ -39,6 +39,7 @@ const MainApp = () => {
     width: number;
     height: number;
   } | null>(null);
+
   const [imageLoaded, setImageLoaded] = useState(false);
   const [fontFamily, setFontFamily] = useState("Arial");
 
@@ -75,10 +76,11 @@ const MainApp = () => {
       const panel = previewPanelRef.current;
       const naturalWidth = img.naturalWidth;
       const naturalHeight = img.naturalHeight;
-
+      
       console.log(
         `updateDimensions: naturalWidth=${naturalWidth}, naturalHeight=${naturalHeight}`,
       );
+
 
       if (naturalWidth === 0 || naturalHeight === 0) {
         console.warn("Image dimensions not available");
@@ -204,6 +206,7 @@ const MainApp = () => {
       originalImageRef.current &&
       previewPanelRef.current
     ) {
+
       console.log("Processed image ready, triggering updateDimensions");
       updateDimensions();
     }
@@ -212,6 +215,7 @@ const MainApp = () => {
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+
     const file = event.target.files?.[0];
     if (file) {
       const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
@@ -250,6 +254,7 @@ const MainApp = () => {
       console.log("Image processing failed, using original:", {
         processedImage: imageUrl,
       });
+
     }
   };
 
@@ -337,6 +342,7 @@ const MainApp = () => {
             : textAlign === "right"
               ? "left"
               : "center";
+
         ctx.textBaseline = "middle";
 
         const x = (width * (textSet.left + 50)) / 100;
@@ -498,3 +504,4 @@ const MainApp = () => {
 };
 
 export default MainApp;
+

@@ -63,6 +63,7 @@ const LeftPanel: React.FC<LeftPanelProps> = ({
     >
       {isProcessing ? (
         <span className="text-primary animate-pulse">Processing image...</span>
+
       ) : originalImage ? (
         <div
           className="relative w-full"
