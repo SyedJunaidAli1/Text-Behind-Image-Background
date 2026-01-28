@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Select from "react-select";
 import { RefObject } from "react";
 import {
   AlignLeft,
@@ -29,7 +28,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ColorPicker,
   ColorPickerAlpha,
-  ColorPickerEyeDropper,
   ColorPickerFormat,
   ColorPickerHue,
   ColorPickerOutput,
@@ -41,8 +39,6 @@ type ColorInput =
   | string
   | [number, number, number]
   | [number, number, number, number];
-}
-
 
 interface RightPanelProps {
   activeSection: string | null;
@@ -182,7 +178,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
         </TabsList>
       </Tabs>
 
-
       {activeSection === "text" && (
         <div className="space-y-3 md:space-y-4">
           <div>
@@ -193,7 +188,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Enter text"
-
             />
           </div>
           <div>
@@ -206,7 +200,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               max={1000}
               value={[textSize]}
               onValueChange={([val]) => setTextSize(val)}
-
             />
           </div>
           <div>
@@ -268,7 +261,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               step={1}
               value={[textOpacity]}
               onValueChange={([val]) => setTextOpacity(val)}
-
             />
           </div>
           <div>
@@ -282,7 +274,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               step={1}
               value={[textHorizontal]}
               onValueChange={([val]) => setTextHorizontal(val)}
-
             />
           </div>
           <div>
@@ -296,7 +287,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               step={1}
               value={[textVertical]}
               onValueChange={([val]) => setTextVertical(val)}
-
             />
           </div>
           <div>
@@ -375,7 +365,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
           <label className="flex flex-col gap-2">
             <span className="text-xs md:text-sm font-medium">Choose File</span>
 
-
             <input
               type="file"
               ref={fileInputRef}
@@ -393,7 +382,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               <Upload className="h-4 w-4" />
               Upload Image
             </Button>
-
           </label>
           <div>
             <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
@@ -419,7 +407,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               step={1}
               value={[brightness]}
               onValueChange={([val]) => setBrightness(val)}
-
             />
           </div>
           <div>
@@ -433,7 +420,6 @@ const RightPanel: React.FC<RightPanelProps> = ({
               step={1}
               value={[contrast]}
               onValueChange={([val]) => setContrast(val)}
-
             />
           </div>
         </div>
@@ -456,14 +442,12 @@ const RightPanel: React.FC<RightPanelProps> = ({
                 <SelectItem value="4:3">4:3</SelectItem>
               </SelectContent>
             </Select>
-
           </div>
         </div>
       )}
       <div className="flex gap-2 md:gap-4 justify-end mt-3 md:mt-4">
         <Button onClick={handleReset}>Reset</Button>
         <Button onClick={handleDownload}>Download</Button>
-
       </div>
     </div>
   );
