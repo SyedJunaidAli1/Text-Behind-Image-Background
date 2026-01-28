@@ -13,7 +13,6 @@ import {
   Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -24,6 +23,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface RightPanelProps {
   activeSection: string | null;
@@ -114,41 +114,38 @@ const RightPanel: React.FC<RightPanelProps> = ({
 }) => {
   return (
     <div className="w-full md:w-80 border rounded-lg p-4 md:p-6 shadow-sm max-h-[80vh] md:max-h-[80vh] overflow-auto">
-      <div className="flex gap-2 md:gap-3 mb-4 md:mb-6">
-        <button
-          onClick={() => toggleSection("text")}
-          className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-            activeSection === "text"
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
-          }`}
-        >
-          <Type size={14} className="md:w-4 md:h-4" />
-          Text
-        </button>
-        <button
-          onClick={() => toggleSection("image")}
-          className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-            activeSection === "image"
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
-          }`}
-        >
-          <Camera size={14} className="md:w-4 md:h-4" />
-          Image
-        </button>
-        <button
-          onClick={() => toggleSection("settings")}
-          className={`flex-1 py-2 px-2 md:px-3 text-xs md:text-sm font-medium rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-1 md:gap-2 ${
-            activeSection === "settings"
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-50 text-gray-700 hover:bg-gray-100 hover:scale-105"
-          }`}
-        >
-          <Settings size={14} className="md:w-4 md:h-4" />
-          Settings
-        </button>
-      </div>
+      <Tabs
+        value={activeSection ?? "text"}
+        onValueChange={toggleSection}
+        className="mb-4 md:mb-6"
+      >
+        <TabsList className="grid grid-cols-3 gap-2">
+          <TabsTrigger
+            value="text"
+            className="flex items-center gap-2 text-xs md:text-sm"
+          >
+            <Type className="h-4 w-4" />
+            Text
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="image"
+            className="flex items-center gap-2 text-xs md:text-sm"
+          >
+            <Camera className="h-4 w-4" />
+            Image
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="settings"
+            className="flex items-center gap-2 text-xs md:text-sm"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {activeSection === "text" && (
         <div className="space-y-3 md:space-y-4">
           <div>
