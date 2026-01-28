@@ -10,6 +10,7 @@ import {
   Type,
   Camera,
   Settings,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -319,17 +320,26 @@ const RightPanel: React.FC<RightPanelProps> = ({
       )}
       {activeSection === "image" && (
         <div className="space-y-4 md:space-y-6">
-          <label className="block mb-2 md:mb-4">
-            <span className="block text-xs md:text-sm font-medium mb-1 md:mb-2">
-              Choose File
-            </span>
+          <label className="flex flex-col gap-2">
+            <span className="text-xs md:text-sm font-medium">Choose File</span>
+
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
               accept="image/png,image/jpeg,image/jpg"
-              className="block w-full text-xs md:text-sm text-gray-500 file:mr-2 md:file:mr-4 file:py-2 file:px-3 md:file:px-4 file:rounded-md file:border-0 file:text-xs md:file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              className="hidden"
             />
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2"
+            >
+              <Upload className="h-4 w-4" />
+              Upload Image
+            </Button>
           </label>
           <div>
             <label className="text-xs md:text-sm font-medium mb-1 md:mb-2 flex justify-between">
@@ -372,6 +382,7 @@ const RightPanel: React.FC<RightPanelProps> = ({
           </div>
         </div>
       )}
+
       {activeSection === "settings" && (
         <div className="space-y-4 md:space-y-6">
           <div>
